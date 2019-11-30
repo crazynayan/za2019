@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block app_content %}
+    <div class="row">
+        <div class="col-md-4">
+            <h1>Fixtures - Round {{ round }}</h1>
+        </div>
+        <div class="col-md-4">
+            <a class="btn btn-block btn-success" href="{{ url_for('next_match_up', game_id=game_id) }}">
+                Play
+            </a>
+        </div>
+        <div class="col-md-4">
+            <a class="btn btn-block btn-primary" href="{{ url_for('leaderboard', game_id=game_id) }}">
+                Leaderboard
+            </a>
+        </div>
+    </div>
+    <br>
+    <table class="table table-bordered table-sm table-hover">
+        <thead class="thead-dark">
+        <tr>
+            <th scope="col" class="text-center">Match</th>
+            <th scope="col" class="text-center">Player 1</th>
+            <th scope="col" class="text-center">Player 2</th>
+            <th scope="col" class="text-center">Winner</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for schedule in schedules %}
+            <tr>
+                <td class="text-center align-middle">
+                    {{ schedule.match }}
+                </td>
+                <td class="text-center align-middle">
+                    <a class="btn btn-block btn-primary"
+                       href="{{ url_for('profile', game_id=game_id, player_id=schedule.player1) }}">
+                        {{ schedule.player1 }}
+                    </a>
+                </td>
+                <td class="text-center align-middle">
+                    <a class="btn btn-block btn-primary"
+                       href="{{ url_for('profile', game_id=game_id, player_id=schedule.player2) }}">
+                        {{ schedule.player2 }}
+                    </a>
+                </td>
+                <td class="text-center align-middle">
+                    {% if schedule.winner %}
+                        <a class="btn btn-block btn-success"
+                           href="{{ url_for('profile', game_id=game_id, player_id=schedule.winner) }}">
+                            {{ schedule.winner }}
+                        </a>
+                    {% endif %}
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

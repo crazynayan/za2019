@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block app_content %}
+    <div class="row">
+        <div class="col-md-4">
+            <h1>Rounds</h1>
+        </div>
+        <div class="col-md-4">
+            <a class="btn btn-block btn-success" href="{{ url_for('next_match_up', game_id=game_id) }}">
+                Play
+            </a>
+        </div>
+        <div class="col-md-4">
+            <a class="btn btn-block btn-primary" href="{{ url_for('leaderboard', game_id=game_id) }}">
+                Leaderboard
+            </a>
+        </div>
+    </div>
+    <br>
+    {% if rounds %}
+        {% for rounds_batched in rounds|batch(6) %}
+            <div class="row">
+                {% for round in rounds_batched %}
+                    <div class="col-md-2">
+                        <a class="btn btn-block btn-primary"
+                           href="{{ url_for('schedule_fixtures', game_id=game_id, requested_round=round) }}">
+                            Round {{ round }}
+                        </a>
+                    </div>
+                {% endfor %}
+            </div>
+            <br>
+        {% endfor %}
+        <br>
+    {% else %}
+        <p>There are no rounds. Please play the game to create schedule.</p>
+    {% endif %}
+{% endblock %}

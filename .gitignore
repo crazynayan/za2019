@@ -1,0 +1,5 @@
+venv/
+.idea/
+__pycache__
+google-cloud.json
+flask_app/static/wc2019/

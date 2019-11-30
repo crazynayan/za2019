@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block app_content %}
+    <div class="row">
+        <div class="col-md-4">
+            <h3>{{ player1.name }} vs {{ player2.name }}</h3>
+            <h6> Round {{ round }}, Match {{ match }}</h6>
+        </div>
+        <div class="col-md-4 align-middle">
+            <a class="btn btn-block btn-primary" href="{{ url_for('leaderboard', game_id=game_id) }}">
+                Leaderboard
+            </a>
+        </div>
+        <div class="col-md-4">
+            <a class="btn btn-block btn-primary" href="{{ url_for('schedule_rounds', game_id=game_id) }}">
+                Fixtures & Results
+            </a>
+        </div>
+    </div>
+    <br>
+    <form class="form" method="POST">
+        {{ form.hidden_tag() }}
+        <div class="row">
+            <div class="col-md">
+                {{ form.submit(class="btn btn-primary btn-block") }}
+            </div>
+        </div>
+        <br>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-check">
+                    <label class="form-check-label">
+                        {{ form.player1(class="form-check-input") }}
+                        <img class="img-fluid" src="{{ url_for('static', filename=player1.image) }}"
+                             alt="{{ player1.name }}">
+                    </label>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-check">
+                    <label class="form-check-label">
+                        {{ form.player2(class="form-check-input") }}
+                        <img class="img-fluid" src="{{ url_for('static', filename=player2.image) }}"
+                             alt="{{ player2.name }}">
+                    </label>
+                </div>
+            </div>
+        </div>
+    </form>
+{% endblock %}

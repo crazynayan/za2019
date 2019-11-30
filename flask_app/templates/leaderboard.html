@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% block app_content %}
+    <div class="row">
+        <div class="col-md-4">
+            <h1>{{ title }}</h1>
+        </div>
+        <div class="col-md-4">
+            <a class="btn btn-block btn-success" href="{{ url_for('next_match_up', game_id=game_id) }}">
+                Play
+            </a>
+        </div>
+        <div class="col-md-4">
+            <a class="btn btn-block btn-primary" href="{{ url_for('schedule_rounds', game_id=game_id) }}">
+                Fixtures & Results
+            </a>
+        </div>
+    </div>
+    <br>
+    <div class="row">
+        <div class="col-md-3">
+            <a class="btn btn-block btn-primary" href="{{ url_for('leaderboard', game_id=game_id) }}">
+                Leaderboard
+            </a>
+        </div>
+        <div class="col-md-3">
+            <a class="btn btn-block btn-primary" href="{{ url_for('eliminated', game_id=game_id) }}">
+                Eliminated
+            </a>
+        </div>
+        <div class="col-md-3">
+            <a class="btn btn-block btn-danger" href="{{ url_for('leaderboard_all', game_id=game_id) }}">
+                Leaderboard All
+            </a>
+        </div>
+        <div class="col-md-3">
+            <a class="btn btn-block btn-danger" href="{{ url_for('eliminated_all', game_id=game_id) }}">
+                Eliminated All
+            </a>
+        </div>
+    </div>
+    <br>
+    <table class="table table-bordered table-sm table-hover">
+        <thead class="thead-dark">
+        <tr>
+            <th scope="col" class="text-center">Position</th>
+            <th scope="col" class="text-center">Rank</th>
+            <th scope="col" class="text-center">Name</th>
+            <th scope="col" class="text-center">Played</th>
+            <th scope="col" class="text-center">Points</th>
+            <th scope="col" class="text-center">Tie Break</th>
+            <th scope="col" class="text-center">Byes</th>
+            <th scope="col" class="text-center">Lives</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for player in players %}
+            <tr>
+                <td class="text-center align-middle">
+                    {{ loop.index }}
+                </td>
+                <td class="text-center align-middle">
+                    {{ player.rank }}
+                </td>
+                <td class="text-center align-middle">
+                    <a class="btn btn-block btn-primary"
+                       href="{{ url_for('profile', game_id=game_id, player_id=player.name) }}">
+                        {{ player.name }}
+                    </a>
+                </td>
+                <td class="text-center align-middle">
+                    {{ player.played_count }}
+                </td>
+                <td class="text-center align-middle">
+                    {{ player.points }}
+                </td>
+                <td class="text-center align-middle">
+                    {{ player.tie_break }}
+                </td>
+                <td class="text-center align-middle">
+                    {{ player.byes_count }}
+                </td>
+                <td class="text-center align-middle">
+                    {{ player.lives }}
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}
+
+{#                <td class="align-content-center">#}
+{#                    <img class="img-fluid" width="50"#}
+{#                         src="{{ url_for('static', filename=player.image) }}" alt="{{ player.name }}">#}
+{#                </td>#}

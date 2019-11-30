@@ -1,0 +1,13 @@
+version: '3.3'
+services:
+  swiss_league:
+    container_name: za2019
+    build:
+      context: .
+      labels:
+        in.co.crazyideas.za: "Swiss League"
+    image: za2019
+    ports:
+      - "8002:8002"
+    environment:
+      - PORT=8002

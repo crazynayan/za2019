@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+
+{% block app_content %}
+    <div class="row">
+        <div class="col-md-4">
+            <h1>{{ player.name }} ({{ player.rank }})</h1>
+        </div>
+        <div class="col-md-4">
+            <a class="btn btn-block btn-success" href="{{ url_for('next_match_up', game_id=game_id) }}">
+                Play
+            </a>
+        </div>
+        <div class="col-md-4">
+            <a class="btn btn-block btn-primary" href="{{ url_for('leaderboard', game_id=game_id) }}">
+                Leaderboard
+            </a>
+        </div>
+    </div>
+    <br>
+    <div class="row">
+        <div class="col-md-6">
+            <img class="img-fluid" src="{{ url_for('static', filename=player.image) }}" alt="{{ player.name }}">
+        </div>
+        <div class="col-md-6">
+            <table class="table table-bordered table-sm table-hover">
+                <thead class="thead-dark">
+                <tr>
+                    <th scope="col" class="text-center">Rank</th>
+                    <th scope="col" class="text-center">Played</th>
+                    <th scope="col" class="text-center">Points</th>
+                    <th scope="col" class="text-center">Tie Break</th>
+                    <th scope="col" class="text-center">Lives</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td class="text-center align-middle">
+                        {{ player.rank }}
+                    </td>
+                    <td class="text-center align-middle">
+                        {{ player.played_count }}
+                    </td>
+                    <td class="text-center align-middle">
+                        {{ player.points }}
+                    </td>
+                    <td class="text-center align-middle">
+                        {{ player.tie_break }}
+                    </td>
+                    <td class="text-center align-middle">
+                        {{ player.lives }}
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+            {% if player.lost %}
+                <br>
+                <h3> Lost to </h3>
+                <br>
+                <div class="row">
+                    {% for loser in player.lost %}
+                        <div class="col-md-2">
+                            <a class="btn btn-block btn-danger"
+                               href="{{ url_for('profile', game_id=game_id, player_id=loser) }}">
+                                {{ loser }}
+                            </a>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+            {% if player.won %}
+                <br>
+                <h3> Won against </h3>
+                {% for winner_batch in player.won|batch(6) %}
+                    <br>
+                    <div class="row">
+                        {% for winner in winner_batch %}
+                            <div class="col-md-2">
+                                <a class="btn btn-block btn-success"
+                                   href="{{ url_for('profile', game_id=game_id, player_id=winner) }}">
+                                    {{ winner }}
+                                </a>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endfor %}
+            {% endif %}
+            {% if player.byes %}
+                <br>
+                <h3> Byes in following rounds </h3>
+                {% for byes_batch in player.byes|batch(6) %}
+                    <br>
+                    <div class="row">
+                        {% for round in byes_batch %}
+                            <div class="col-md-2">
+                                <a class="btn btn-block btn-primary"
+                                   href="{{ url_for('schedule_fixtures', game_id=game_id, requested_round=round) }}">
+                                    R #{{ round }}
+                                </a>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        </div>
+    </div>
+    <br>
+{% endblock %}

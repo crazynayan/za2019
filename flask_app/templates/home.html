@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block app_content %}
+    <div class="row">
+        <div class="col-md-8">
+            <h1>Welcome to ZA</h1>
+        </div>
+        <div class="col-md-4">
+            <a class="btn btn-danger btn-block text-center"
+               href="{{ url_for('create_game') }}">
+                Create Game
+            </a>
+        </div>
+    </div>
+    <br>
+    {% if games %}
+        {% for game in games %}
+            <div class="row">
+                <div class="col-md-3">
+                    <a class="btn btn-block btn-success" href="{{ url_for('next_match_up', game_id=game.id) }}">
+                        {{ game.name.upper() }}
+                    </a>
+                </div>
+                <div class="col-md-3">
+                    <a class="btn btn-block btn-success" href="{{ url_for('next_match_up', game_id=game.id) }}">
+                        Play
+                    </a>
+                </div>
+                <div class="col-md-3">
+                    <a class="btn btn-block btn-primary" href="{{ url_for('leaderboard', game_id=game.id) }}">
+                        Leaderboard
+                    </a>
+                </div>
+                <div class="col-md-3">
+                    <a class="btn btn-block btn-primary" href="{{ url_for('schedule_rounds', game_id=game.id) }}">
+                        Fixtures & Results
+                    </a>
+                </div>
+            </div>
+            <br>
+        {% endfor %}
+    {% else %}
+        <p>There are no games. Please create a game</p>
+    {% endif %}
+{% endblock %}
