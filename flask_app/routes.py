@@ -6,7 +6,7 @@ from flask_login import login_required
 
 from flask_app import za_app
 from flask_app.drive import Drive
-from flask_app.firestore_ci import ORDER_DESCENDING
+from flask_app.firestore_ci import ORDER_DESCENDING, FILTER_IN
 from flask_app.forms import GameForm, MatchForm
 from flask_app.models import Game, Player, Schedule
 
@@ -34,7 +34,7 @@ def create_game() -> Response:
     files = Drive.get_files(folder_name)
     for file in files:
         Player.create_from_dict({'name': file, 'game': folder_name})
-    prepare_schedule(folder_name)
+    prepare_schedule(folder_name, random_choice=True)
     flash(f"{folder_name} created with {len(files)} players")
     return redirect(url_for('home'))
 
@@ -79,30 +79,24 @@ def next_match_up(game_id: str) -> Response:
     return redirect(url_for('next_match_up', game_id=game_id))
 
 
-@za_app.route('/games/<string:game_id>/leaderboard', methods=['GET', 'POST'])
+@za_app.route('/games/<string:game_id>/leaderboard')
 @login_required
 def leaderboard(game_id: str) -> Response:
     page_size = 50
-    players = Player.objects.filter_by(game=game_id).filter('lives', '>', 0).limit(page_size).get()
-    players.sort(key=lambda player: (-player.points, -player.tie_break, player.rank))
-    if len(players) < page_size:
-        page_size -= len(players)
-        eliminated_players = Player.objects.filter_by(game=game_id, lives=0).limit(page_size).get()
-        eliminated_players.sort(key=lambda player: (-player.last_round, -player.points, -player.tie_break, player.rank))
-        players.extend(eliminated_players)
+    players = Player.objects.filter_by(game=game_id).order_by('points', ORDER_DESCENDING). \
+        order_by('tie_break', ORDER_DESCENDING).order_by('rank').limit(page_size).get()
+    return render_template('leaderboard.html', players=players, game_id=game_id, title=f'Top {page_size}')
+
+
+@za_app.route('/games/<string:game_id>/leaderboard/leaderboard/all')
+@login_required
+def leaderboard_all(game_id: str) -> Response:
+    players = Player.objects.filter_by(game=game_id).get()
+    players.sort(key=lambda player: player.rank)
     return render_template('leaderboard.html', players=players, game_id=game_id, title='Leaderboard')
 
 
-@za_app.route('/games/<string:game_id>/leaderboard/eliminated', methods=['GET', 'POST'])
-@login_required
-def eliminated(game_id: str) -> Response:
-    page_size = 50
-    players = Player.objects.filter_by(game=game_id, lives=0).limit(page_size).get()
-    players.sort(key=lambda player: (-player.last_round, -player.points, -player.tie_break, player.rank))
-    return render_template('leaderboard.html', players=players, game_id=game_id, title='Eliminated')
-
-
-@za_app.route('/games/<string:game_id>/leaderboard/eliminated/all', methods=['GET', 'POST'])
+@za_app.route('/games/<string:game_id>/leaderboard/eliminated/all')
 @login_required
 def eliminated_all(game_id: str) -> Response:
     players = Player.objects.filter_by(game=game_id, lives=0).get()
@@ -110,15 +104,15 @@ def eliminated_all(game_id: str) -> Response:
     return render_template('leaderboard.html', players=players, game_id=game_id, title='Eliminated')
 
 
-@za_app.route('/games/<string:game_id>/leaderboard/all', methods=['GET', 'POST'])
+@za_app.route('/games/<string:game_id>/playing/all')
 @login_required
-def leaderboard_all(game_id: str) -> Response:
+def playing_all(game_id: str) -> Response:
     players = Player.objects.filter_by(game=game_id).filter('lives', '>', 0).get()
     players.sort(key=lambda player: (-player.points, -player.tie_break, player.rank))
-    return render_template('leaderboard.html', players=players, game_id=game_id, title='Leaderboard')
+    return render_template('leaderboard.html', players=players, game_id=game_id, title='Playing')
 
 
-@za_app.route('/games/<string:game_id>/rounds', methods=['GET', 'POST'])
+@za_app.route('/games/<string:game_id>/rounds')
 @login_required
 def schedule_rounds(game_id: str) -> Response:
     last_match = Schedule.objects.filter_by(game=game_id).order_by('match', ORDER_DESCENDING).first()
@@ -130,7 +124,9 @@ def schedule_rounds(game_id: str) -> Response:
 @login_required
 def schedule_fixtures(game_id: str, requested_round: int) -> Response:
     schedules = Schedule.objects.filter_by(game=game_id, round=requested_round).order_by('match').get()
-    return render_template('schedule.html', schedules=schedules, round=requested_round, game_id=game_id)
+    players = Player.objects.filter_by(game=game_id).filter('byes', FILTER_IN, requested_round).get()
+    return render_template('schedule.html', schedules=schedules, round=requested_round, players=players,
+                           game_id=game_id)
 
 
 @za_app.route('/games/<string:game_id>/players/<string:player_id>')
@@ -140,28 +136,28 @@ def profile(game_id: str, player_id: str):
     return render_template('profile.html', player=player, game_id=game_id)
 
 
-def get_match(player1: Player, players: List[Player], next_round: int) -> Optional[Player]:
+def get_match(player1: Player, players: List[Player], random_choice: bool) -> Optional[Player]:
     if not players:
         return None
     while players:
-        player2 = random.choice(players) if next_round <= 3 else players[0]
+        player2 = random.choice(players) if random_choice else players[0]
         if not player1.played(player2):
             return player2
         players.remove(player2)
     return None
 
 
-def prepare_schedule(game_id: str) -> bool:
+def prepare_schedule(game_id: str, random_choice: bool = False) -> bool:
     last_match = Schedule.objects.filter_by(game=game_id).order_by('match', ORDER_DESCENDING).first()
     next_round = last_match.round + 1 if last_match else 1
     next_match = last_match.match + 1 if last_match else 1
     match_players: List[Player] = Player.objects.filter_by(game=game_id).filter('lives', '>', 0).get()
-    match_players.sort(key=lambda player: (player.points, player.tie_break), reverse=True)
+    match_players.sort(key=lambda player: player.rank)
     schedule_prepared = False
     while match_players:
         player1 = match_players[0]
         player1_match_up = match_players[1:] if len(match_players) > 1 else list()
-        player2 = get_match(player1, player1_match_up, next_round)
+        player2 = get_match(player1, player1_match_up, random_choice)
         if not player2:
             if next_round not in player1.byes:
                 player1.byes.append(next_round)
@@ -205,3 +201,4 @@ def update_rank(game_id: str) -> None:
         player.rank = sorted_players.index(rank_player) + 1
     for player in players:
         player.save()
+    return

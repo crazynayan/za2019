@@ -1,4 +1,4 @@
-# Swiss Round Championship
+# Swiss League
 
 This application is to identify a champion using pair wise competition using a modified swiss style league rules.
 

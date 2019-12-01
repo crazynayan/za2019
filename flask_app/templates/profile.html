@@ -2,17 +2,22 @@
 
 {% block app_content %}
     <div class="row">
-        <div class="col-md-4">
+        <div class="col-md-3">
             <h1>{{ player.name }} ({{ player.rank }})</h1>
         </div>
-        <div class="col-md-4">
+        <div class="col-md-3">
             <a class="btn btn-block btn-success" href="{{ url_for('next_match_up', game_id=game_id) }}">
                 Play
             </a>
         </div>
-        <div class="col-md-4">
+        <div class="col-md-3">
             <a class="btn btn-block btn-primary" href="{{ url_for('leaderboard', game_id=game_id) }}">
                 Leaderboard
+            </a>
+        </div>
+        <div class="col-md-3">
+            <a class="btn btn-block btn-primary" href="{{ url_for('schedule_rounds', game_id=game_id) }}">
+                Rounds
             </a>
         </div>
     </div>
@@ -28,8 +33,9 @@
                     <th scope="col" class="text-center">Rank</th>
                     <th scope="col" class="text-center">Played</th>
                     <th scope="col" class="text-center">Points</th>
-                    <th scope="col" class="text-center">Tie Break</th>
+                    <th scope="col" class="text-center">TB</th>
                     <th scope="col" class="text-center">Lives</th>
+                    <th scope="col" class="text-center">Round</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -49,6 +55,9 @@
                     <td class="text-center align-middle">
                         {{ player.lives }}
                     </td>
+                    <td class="text-center align-middle">
+                        {{ player.last_round }}
+                    </td>
                 </tr>
                 </tbody>
             </table>
@@ -58,7 +67,7 @@
                 <br>
                 <div class="row">
                     {% for loser in player.lost %}
-                        <div class="col-md-2">
+                        <div class="col-md">
                             <a class="btn btn-block btn-danger"
                                href="{{ url_for('profile', game_id=game_id, player_id=loser) }}">
                                 {{ loser }}
@@ -70,11 +79,11 @@
             {% if player.won %}
                 <br>
                 <h3> Won against </h3>
-                {% for winner_batch in player.won|batch(6) %}
+                {% for winner_batch in player.won|batch(3) %}
                     <br>
                     <div class="row">
                         {% for winner in winner_batch %}
-                            <div class="col-md-2">
+                            <div class="col-md">
                                 <a class="btn btn-block btn-success"
                                    href="{{ url_for('profile', game_id=game_id, player_id=winner) }}">
                                     {{ winner }}
@@ -87,11 +96,11 @@
             {% if player.byes %}
                 <br>
                 <h3> Byes in following rounds </h3>
-                {% for byes_batch in player.byes|batch(6) %}
+                {% for byes_batch in player.byes|batch(3) %}
                     <br>
                     <div class="row">
                         {% for round in byes_batch %}
-                            <div class="col-md-2">
+                            <div class="col-md">
                                 <a class="btn btn-block btn-primary"
                                    href="{{ url_for('schedule_fixtures', game_id=game_id, requested_round=round) }}">
                                     R #{{ round }}

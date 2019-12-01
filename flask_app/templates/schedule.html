@@ -2,17 +2,22 @@
 
 {% block app_content %}
     <div class="row">
-        <div class="col-md-4">
-            <h1>Fixtures - Round {{ round }}</h1>
+        <div class="col-md-3">
+            <h1>Round {{ round }}</h1>
         </div>
-        <div class="col-md-4">
+        <div class="col-md-3">
             <a class="btn btn-block btn-success" href="{{ url_for('next_match_up', game_id=game_id) }}">
                 Play
             </a>
         </div>
-        <div class="col-md-4">
+        <div class="col-md-3">
             <a class="btn btn-block btn-primary" href="{{ url_for('leaderboard', game_id=game_id) }}">
                 Leaderboard
+            </a>
+        </div>
+        <div class="col-md-3">
+            <a class="btn btn-block btn-primary" href="{{ url_for('schedule_rounds', game_id=game_id) }}">
+                Rounds
             </a>
         </div>
     </div>
@@ -56,4 +61,25 @@
         {% endfor %}
         </tbody>
     </table>
+    <br>
+    {% if players %}
+        <div class="row">
+            <div class="col-md-6">
+                <h3> Byes given to</h3>
+            </div>
+        </div>
+        {% for player_batch in players|batch(6) %}
+            <br>
+            <div class="row">
+                {% for player in player_batch %}
+                    <div class="col-md-2">
+                        <a class="btn btn-block btn-primary"
+                           href="{{ url_for('profile', game_id=game_id, player_id=player.name) }}">
+                            {{ player.name }}
+                        </a>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endfor %}
+    {% endif %}
 {% endblock %}

@@ -10,6 +10,7 @@ _FirestoreDocChild = TypeVar('_FirestoreDocChild', bound='FirestoreDocument')
 # These can be imported for passing in order_by method
 ORDER_ASCENDING = Query.ASCENDING
 ORDER_DESCENDING = Query.DESCENDING
+FILTER_IN = 'array_contains'
 # Used to map collection to model
 _REFERENCE: Dict[str, callable] = dict()
 
@@ -21,7 +22,7 @@ class FirestoreCIError(Exception):
 
 
 class _Query:
-    _COMPARISON_OPERATORS = {'<', '<=', '==', '>', '>=', 'array contains'}
+    _COMPARISON_OPERATORS = {'<', '<=', '==', '>', '>=', FILTER_IN}
     _DIRECTION = {ORDER_ASCENDING, ORDER_DESCENDING}
 
     def __init__(self):
