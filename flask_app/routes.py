@@ -66,10 +66,10 @@ def next_match_up(game_id: str) -> Response:
     winner.tie_break += loser.points
     winner.last_round = match.round
     winner.save()
-    for player_name in winner.lost:
-        player = Player.objects.filter_by(game=game_id, name=player_name).first()
-        player.tie_break += 1
-        player.save()
+    # for player_name in winner.lost:
+    #     player = Player.objects.filter_by(game=game_id, name=player_name).first()
+    #     player.tie_break += 1
+    #     player.save()
     loser.lost.append(winner.name)
     loser.last_round = match.round
     loser.lives -= 1
@@ -100,7 +100,7 @@ def leaderboard_all(game_id: str) -> Response:
 @login_required
 def eliminated_all(game_id: str) -> Response:
     players = Player.objects.filter_by(game=game_id, lives=0).get()
-    players.sort(key=lambda player: (-player.last_round, -player.points, -player.tie_break, player.rank))
+    players.sort(key=lambda player: (-player.points, player.rank))
     return render_template('leaderboard.html', players=players, game_id=game_id, title='Eliminated')
 
 
@@ -108,7 +108,7 @@ def eliminated_all(game_id: str) -> Response:
 @login_required
 def playing_all(game_id: str) -> Response:
     players = Player.objects.filter_by(game=game_id).filter('lives', '>', 0).get()
-    players.sort(key=lambda player: (-player.points, -player.tie_break, player.rank))
+    players.sort(key=lambda player: (-player.points, player.rank))
     return render_template('leaderboard.html', players=players, game_id=game_id, title='Playing')
 
 
@@ -155,8 +155,13 @@ def prepare_schedule(game_id: str, random_choice: bool = False) -> bool:
     match_players.sort(key=lambda player: player.rank)
     schedule_prepared = False
     while match_players:
-        player1 = match_players[0]
-        player1_match_up = match_players[1:] if len(match_players) > 1 else list()
+        if match_players[-1].byes:
+            player1 = match_players[-1]
+            player1_match_up = match_players[:-1] if len(match_players) > 1 else list()
+            player1_match_up.reverse()
+        else:
+            player1 = match_players[0]
+            player1_match_up = match_players[1:] if len(match_players) > 1 else list()
         player2 = get_match(player1, player1_match_up, random_choice)
         if not player2:
             if next_round not in player1.byes:
@@ -176,29 +181,34 @@ def prepare_schedule(game_id: str, random_choice: bool = False) -> bool:
 def sync_points(players: List[Player]) -> None:
     for player in players:
         player.points = len(player.won)
+        player.lives = Player().lives - len(player.lost)
+    for player in players:
         player.tie_break = 0
         for won_name in player.won:
             won_player = next(player for player in players if player.name == won_name)
             player.tie_break += won_player.points
-        player.lives = Player().lives - len(player.lost)
+        player.tie_break3 = 0
+        for lost_name in player.lost:
+            lost_player = next(player for player in players if player.name == lost_name)
+            player.tie_break3 += lost_player.points
+    for player in players:
+        player.tie_break2 = 0
+        for won_name in player.won:
+            won_player = next(player for player in players if player.name == won_name)
+            player.tie_break2 += won_player.tie_break
+    return
 
 
 def update_rank(game_id: str) -> None:
     players = Player.objects.filter_by(game=game_id).get()
     sync_points(players)
-    # Sort the players
-    sorted_players = [player for player in players if player.lives]
-    sorted_players.sort(key=lambda player: (-player.points, -player.tie_break))
-    eliminated_players = [player for player in players if not player.lives]
-    eliminated_players.sort(key=lambda player: (-player.last_round, -player.points, -player.tie_break))
-    sorted_players.extend(eliminated_players)
-    # Calculate rank
+    players.sort(key=lambda player_sort: (-player_sort.points, -player_sort.tie_break, -player_sort.tie_break2,
+                                          -player_sort.tie_break3))
     for player in players:
-        rank_player = next(rank_player for rank_player in sorted_players if player.points == rank_player.points and
-                           player.tie_break == rank_player.tie_break) if player.lives else \
-            next(rank_player for rank_player in sorted_players if player.points == rank_player.points and
-                 player.tie_break == rank_player.tie_break and player.last_round == rank_player.last_round)
-        player.rank = sorted_players.index(rank_player) + 1
+        rank_player = next(rank_player for rank_player in players if player.points == rank_player.points and
+                           player.tie_break == rank_player.tie_break and player.tie_break2 == rank_player.tie_break2
+                           and player.tie_break3 == rank_player.tie_break3)
+        player.rank = players.index(rank_player) + 1
     for player in players:
         player.save()
     return

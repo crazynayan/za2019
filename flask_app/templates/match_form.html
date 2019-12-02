@@ -2,19 +2,39 @@
 
 {% block app_content %}
     <div class="row">
-        <div class="col-md-4">
-            <h3>{{ player1.name }} vs {{ player2.name }}</h3>
-            <h6> Round {{ round }}, Match {{ match }}</h6>
+        <div class="col-md">
+            <div class="row">
+                <div class="col-md-5">
+                    <a class="btn btn-block btn-primary"
+                       href="{{ url_for('profile', game_id=game_id, player_id=player1.name) }}">
+                        {{ player1.name }}
+                    </a>
+                </div>
+                <div class="col-md-1 text-center align-middle"></div>
+                <div class="col-md-5">
+                    <a class="btn btn-block btn-primary"
+                       href="{{ url_for('profile', game_id=game_id, player_id=player2.name) }}">
+                        {{ player2.name }}
+                    </a>
+                </div>
+                <div class="col-md-1"></div>
+            </div>
         </div>
-        <div class="col-md-4 align-middle">
+        <div class="col-md align-middle">
             <a class="btn btn-block btn-primary" href="{{ url_for('leaderboard', game_id=game_id) }}">
                 Leaderboard
             </a>
         </div>
-        <div class="col-md-4">
+        <div class="col-md">
             <a class="btn btn-block btn-primary" href="{{ url_for('schedule_rounds', game_id=game_id) }}">
                 Fixtures & Results
             </a>
+        </div>
+    </div>
+    <br>
+    <div class="row">
+        <div class="col-md text-center align-middle">
+            <h4> Round {{ round }}, Match {{ match }}</h4>
         </div>
     </div>
     <br>
@@ -31,8 +51,8 @@
                 <div class="form-check">
                     <label class="form-check-label">
                         {{ form.player1(class="form-check-input") }}
-                        <img class="img-fluid" src="{{ url_for('static', filename=player1.image) }}"
-                             alt="{{ player1.name }}">
+                        <img class="{{ player1.image_border_class }}" alt="{{ player1.name }}"
+                             src="{{ url_for('static', filename=player1.image) }}">
                     </label>
                 </div>
             </div>
@@ -40,8 +60,8 @@
                 <div class="form-check">
                     <label class="form-check-label">
                         {{ form.player2(class="form-check-input") }}
-                        <img class="img-fluid" src="{{ url_for('static', filename=player2.image) }}"
-                             alt="{{ player2.name }}">
+                        <img class="{{ player2.image_border_class }}" alt="{{ player2.name }}"
+                             src="{{ url_for('static', filename=player2.image) }}">
                     </label>
                 </div>
             </div>

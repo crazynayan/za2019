@@ -43,34 +43,34 @@
     <table class="table table-bordered table-sm table-hover">
         <thead class="thead-dark">
         <tr>
-            <th scope="col" class="text-center">Position</th>
-            <th scope="col" class="text-center">Rank</th>
+            <th scope="col" class="text-center">R#</th>
             <th scope="col" class="text-center">Name</th>
-            <th scope="col" class="text-center">Played</th>
+            <th scope="col" class="text-center">Image</th>
             <th scope="col" class="text-center">Points</th>
-            <th scope="col" class="text-center">Tie Break</th>
-            <th scope="col" class="text-center">Byes</th>
-            <th scope="col" class="text-center">Lives</th>
-            <th scope="col" class="text-center">Round</th>
+            <th scope="col" class="text-center">TB1</th>
+            <th scope="col" class="text-center">TB2</th>
+            <th scope="col" class="text-center">TB3</th>
         </tr>
         </thead>
         <tbody>
         {% for player in players %}
             <tr>
                 <td class="text-center align-middle">
-                    {{ loop.index }}
-                </td>
-                <td class="text-center align-middle">
                     {{ player.rank }}
                 </td>
                 <td class="text-center align-middle">
-                    <a class="btn btn-block btn-primary"
+                    <a class="{{ player.btn_class }}"
                        href="{{ url_for('profile', game_id=game_id, player_id=player.name) }}">
                         {{ player.name }}
                     </a>
                 </td>
                 <td class="text-center align-middle">
-                    {{ player.played_count }}
+                    <div class="row">
+                        <div class="col">
+                            <img class="img-fluid" width="75"
+                                 src="{{ url_for('static', filename=player.image) }}" alt="{{ player.name }}">
+                        </div>
+                    </div>
                 </td>
                 <td class="text-center align-middle">
                     {{ player.points }}
@@ -79,13 +79,10 @@
                     {{ player.tie_break }}
                 </td>
                 <td class="text-center align-middle">
-                    {{ player.byes_count }}
+                    {{ player.tie_break2 }}
                 </td>
                 <td class="text-center align-middle">
-                    {{ player.lives }}
-                </td>
-                <td class="text-center align-middle">
-                    {{ player.last_round }}
+                    {{ player.tie_break3 }}
                 </td>
             </tr>
         {% endfor %}
@@ -93,7 +90,3 @@
     </table>
 {% endblock %}
 
-{#                <td class="align-content-center">#}
-{#                    <img class="img-fluid" width="50"#}
-{#                         src="{{ url_for('static', filename=player.image) }}" alt="{{ player.name }}">#}
-{#                </td>#}

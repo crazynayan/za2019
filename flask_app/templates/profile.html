@@ -3,7 +3,7 @@
 {% block app_content %}
     <div class="row">
         <div class="col-md-3">
-            <h1>{{ player.name }} ({{ player.rank }})</h1>
+            <h1>{{ player.name }}-{{ player.rank }}</h1>
         </div>
         <div class="col-md-3">
             <a class="btn btn-block btn-success" href="{{ url_for('next_match_up', game_id=game_id) }}">
@@ -24,17 +24,17 @@
     <br>
     <div class="row">
         <div class="col-md-6">
-            <img class="img-fluid" src="{{ url_for('static', filename=player.image) }}" alt="{{ player.name }}">
+            <img class="{{ player.image_border_class }}" alt="{{ player.name }}"
+                 src="{{ url_for('static', filename=player.image) }}">
         </div>
         <div class="col-md-6">
+            <br>
             <table class="table table-bordered table-sm table-hover">
                 <thead class="thead-dark">
                 <tr>
                     <th scope="col" class="text-center">Rank</th>
                     <th scope="col" class="text-center">Played</th>
-                    <th scope="col" class="text-center">Points</th>
-                    <th scope="col" class="text-center">TB</th>
-                    <th scope="col" class="text-center">Lives</th>
+                    <th scope="col" class="text-center">Byes</th>
                     <th scope="col" class="text-center">Round</th>
                 </tr>
                 </thead>
@@ -47,16 +47,37 @@
                         {{ player.played_count }}
                     </td>
                     <td class="text-center align-middle">
+                        {{ player.byes_count }}
+                    </td>
+                    <td class="text-center align-middle">
+                        {{ player.last_round }}
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+            <br>
+            <table class="table table-bordered table-sm table-hover">
+                <thead class="thead-dark">
+                <tr>
+                    <th scope="col" class="text-center">Points</th>
+                    <th scope="col" class="text-center">TB1</th>
+                    <th scope="col" class="text-center">TB2</th>
+                    <th scope="col" class="text-center">TB3</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td class="text-center align-middle">
                         {{ player.points }}
                     </td>
                     <td class="text-center align-middle">
                         {{ player.tie_break }}
                     </td>
                     <td class="text-center align-middle">
-                        {{ player.lives }}
+                        {{ player.tie_break2 }}
                     </td>
                     <td class="text-center align-middle">
-                        {{ player.last_round }}
+                        {{ player.tie_break3 }}
                     </td>
                 </tr>
                 </tbody>
@@ -67,7 +88,7 @@
                 <br>
                 <div class="row">
                     {% for loser in player.lost %}
-                        <div class="col-md">
+                        <div class="col-md-4">
                             <a class="btn btn-block btn-danger"
                                href="{{ url_for('profile', game_id=game_id, player_id=loser) }}">
                                 {{ loser }}
@@ -83,7 +104,7 @@
                     <br>
                     <div class="row">
                         {% for winner in winner_batch %}
-                            <div class="col-md">
+                            <div class="col-md-4">
                                 <a class="btn btn-block btn-success"
                                    href="{{ url_for('profile', game_id=game_id, player_id=winner) }}">
                                     {{ winner }}
@@ -100,7 +121,7 @@
                     <br>
                     <div class="row">
                         {% for round in byes_batch %}
-                            <div class="col-md">
+                            <div class="col-md-4">
                                 <a class="btn btn-block btn-primary"
                                    href="{{ url_for('schedule_fixtures', game_id=game_id, requested_round=round) }}">
                                     R #{{ round }}

@@ -1,7 +1,7 @@
 import os
 from typing import Dict, List
 
-STATIC_FOLDER = 'flask_app/static'
+STATIC_FOLDER = os.path.join('flask_app', 'static')
 
 
 def create_drive() -> Dict[str, List[str]]:
