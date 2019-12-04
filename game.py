@@ -2,9 +2,15 @@ import os
 
 os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = 'google-cloud.json'
 
+# noinspection PyPep8
+from flask_app.drive2 import Drive2
+# noinspection PyPep8
 from flask_app.models import Game, Player, Schedule
+# noinspection PyPep8
 from flask_app.drive import Drive, STATIC_FOLDER
+# noinspection PyPep8
 from flask_app import routes
+
 
 def delete_all(game_id: str):
     print(Schedule.objects.filter_by(game=game_id).delete())
@@ -97,3 +103,45 @@ def sync_points(game_id: str):
     for player in players:
         player.save()
     print(f"{len(players)} synced")
+
+
+def name_error_on_drive(folder_name: str):
+    files = Drive2.get_files(folder_name)
+    files.sort(key=lambda file_item: file_item['name'])
+    invalid_files = [file for file in files if not file['name'].endswith('.jpg') or len(file['name']) != 9
+                     or not file['name'][:2].isalpha() or not file['name'][2:5].isdigit()]
+    for file in invalid_files:
+        print(file['name'])
+    return invalid_files
+
+
+def name_error_replace(folder_name: str):
+    invalid_files = name_error_on_drive(folder_name)
+    for file in invalid_files:
+        if len(file['name']) not in [8, 7]:
+            print(f"Cannot replace {file['name']} - Not in format")
+            continue
+        old_number = file['name'][2:4] if len(file['name']) == 8 else file['name'][2]
+        new_number = f"97{old_number}" if len(old_number) == 1 else f"9{old_number}"
+        if not new_number.isdigit() or len(new_number) != 3:
+            print(f"Cannot replace {file['name']} - Invalid number {new_number}")
+            continue
+        new_file_name = f"{file['name'][:2].upper()}{new_number}.jpg"
+        if Drive2.file_exists('AFake', new_file_name) or Drive2.file_exists('wc2019', new_file_name):
+            print(f"Cannot replace {file['name']} - File {new_file_name} already exists")
+            continue
+        Drive2.rename(file, new_file_name)
+        print(f"File renamed to {new_file_name}")
+    return
+
+
+def name_change(folder_name: str, old_name: str, new_name: str):
+    files = [file for file in Drive2.get_files(folder_name) if file['name'].startswith(old_name)]
+    for file in files:
+        new_file_name = file['name'].replace(old_name, new_name)
+        if Drive2.file_exists('AFake', new_file_name) or Drive2.file_exists('wc2019', new_file_name):
+            print(f"Cannot replace {file['name']} - File {new_file_name} already exists")
+            continue
+        Drive2.rename(file, new_file_name)
+        print(f"File {file['name']} renamed to {new_file_name}")
+    return
