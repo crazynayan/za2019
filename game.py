@@ -145,3 +145,14 @@ def name_change(folder_name: str, old_name: str, new_name: str):
         Drive2.rename(file, new_file_name)
         print(f"File {file['name']} renamed to {new_file_name}")
     return
+
+
+def duplicate_matches(game_id: str):
+    players = Player.objects.filter_by(game=game_id).get()
+    for player in players:
+        if len(player.won) > len(set(player.won)):
+            print(f"** {player.name} won against **")
+            print(player.won)
+        if len(player.lost) > len(set(player.lost)):
+            print(f"** {player.name} lost against **")
+            print(player.lost)

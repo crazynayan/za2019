@@ -50,6 +50,16 @@ def next_match_up(game_id: str) -> Response:
         else:
             flash("Game Over")
         return redirect(url_for('home', game_id=game_id))
+    return redirect(url_for('play_match', game_id=game_id, match_id=match.id))
+
+
+@za_app.route('/games/<string:game_id>/matches/<string:match_id>', methods=['GET', 'POST'])
+@login_required
+def play_match(game_id: str, match_id: str) -> Response:
+    match = Schedule.get_by_id(match_id)
+    if not match:
+        flash('Error in retrieving match')
+        return redirect(url_for('home', game_id=game_id))
     player1: Player = Player.objects.filter_by(game=game_id, name=match.player1).first()
     player2: Player = Player.objects.filter_by(game=game_id, name=match.player2).first()
     form = MatchForm(player1.name, player2.name)
@@ -59,6 +69,9 @@ def next_match_up(game_id: str) -> Response:
     if (form.player1.data and form.player2.data) or (not form.player1.data and not form.player2.data):
         flash("Invalid or No Choice made")
         return redirect(url_for('next_match_up', game_id=game_id))
+    if player2.name in player1.won or player2.name in player1.lost:
+        flash("The match has already been played.")
+        return redirect(url_for('next_match_up', game_id=game_id))
     winner = player1 if form.player1.data else player2
     loser = player1 if form.player2.data else player2
     winner.won.append(loser.name)
@@ -66,10 +79,6 @@ def next_match_up(game_id: str) -> Response:
     winner.tie_break += loser.points
     winner.last_round = match.round
     winner.save()
-    # for player_name in winner.lost:
-    #     player = Player.objects.filter_by(game=game_id, name=player_name).first()
-    #     player.tie_break += 1
-    #     player.save()
     loser.lost.append(winner.name)
     loser.last_round = match.round
     loser.lives -= 1
