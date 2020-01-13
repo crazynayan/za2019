@@ -44,7 +44,7 @@ class Player(FirestoreDocument):
 
     @property
     def image_border_class(self) -> str:
-        if self.lives == 3:
+        if self.lives >= 3:
             color = "border-success"
         elif self.lives == 2:
             color = "border-dark"
@@ -56,7 +56,7 @@ class Player(FirestoreDocument):
 
     @property
     def btn_class(self) -> str:
-        if self.lives == 3:
+        if self.lives >= 3:
             color = "btn-success"
         elif self.lives == 2:
             color = "btn-dark"
@@ -82,7 +82,9 @@ class Schedule(FirestoreDocument):
         super().__init__()
         self.game: str = str()
         self.player1: str = str()
+        self.player1_rank: int = 0
         self.player2: str = str()
+        self.player2_rank: int = 0
         self.winner: str = str()
         self.round: int = 0
         self.match: int = 0

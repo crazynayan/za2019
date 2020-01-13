@@ -141,7 +141,9 @@ def schedule_fixtures(game_id: str, requested_round: int) -> Response:
 @za_app.route('/games/<string:game_id>/players/<string:player_id>')
 @login_required
 def profile(game_id: str, player_id: str):
-    player = Player.objects.filter_by(game=game_id, name=player_id).first()
+    player: Player = Player.objects.filter_by(game=game_id, name=player_id).first()
+    player.won = [Player.objects.filter_by(game=game_id, name=player_name).first() for player_name in player.won]
+    player.lost = [Player.objects.filter_by(game=game_id, name=player_name).first() for player_name in player.lost]
     return render_template('profile.html', player=player, game_id=game_id)
 
 
@@ -171,6 +173,8 @@ def prepare_schedule(game_id: str, random_choice: bool = False) -> bool:
         else:
             player1 = match_players[0]
             player1_match_up = match_players[1:] if len(match_players) > 1 else list()
+            if player1.lives == 1:
+                player1_match_up.reverse()
         player2 = get_match(player1, player1_match_up, random_choice)
         if not player2:
             if next_round not in player1.byes:
@@ -179,7 +183,8 @@ def prepare_schedule(game_id: str, random_choice: bool = False) -> bool:
             match_players.remove(player1)
             continue
         Schedule.create_from_dict({'game': game_id, 'player1': player1.name, 'player2': player2.name,
-                                   'match': next_match, 'round': next_round})
+                                   'match': next_match, 'round': next_round, 'player1_rank': player1.rank,
+                                   'player2_rank': player2.rank})
         match_players.remove(player1)
         match_players.remove(player2)
         next_match += 1
@@ -190,7 +195,6 @@ def prepare_schedule(game_id: str, random_choice: bool = False) -> bool:
 def sync_points(players: List[Player]) -> None:
     for player in players:
         player.points = len(player.won)
-        player.lives = Player().lives - len(player.lost)
     for player in players:
         player.tie_break = 0
         for won_name in player.won:
@@ -211,6 +215,8 @@ def sync_points(players: List[Player]) -> None:
 def update_rank(game_id: str) -> None:
     players = Player.objects.filter_by(game=game_id).get()
     sync_points(players)
+    last_match: Schedule = Schedule.objects.filter_by(game=game_id).order_by('match', ORDER_DESCENDING).first()
+    life_increase = True if last_match.round > 2 and last_match.round % 2 == 1 else False
     players.sort(key=lambda player_sort: (-player_sort.points, -player_sort.tie_break, -player_sort.tie_break2,
                                           -player_sort.tie_break3))
     for player in players:
@@ -218,6 +224,8 @@ def update_rank(game_id: str) -> None:
                            player.tie_break == rank_player.tie_break and player.tie_break2 == rank_player.tie_break2
                            and player.tie_break3 == rank_player.tie_break3)
         player.rank = players.index(rank_player) + 1
+        if life_increase and player.lives > 0:
+            player.lives += 1
     for player in players:
         player.save()
     return

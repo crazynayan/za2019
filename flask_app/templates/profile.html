@@ -36,6 +36,7 @@
                     <th scope="col" class="text-center">Played</th>
                     <th scope="col" class="text-center">Byes</th>
                     <th scope="col" class="text-center">Round</th>
+                    <th scope="col" class="text-center">Lives</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -51,6 +52,9 @@
                     </td>
                     <td class="text-center align-middle">
                         {{ player.last_round }}
+                    </td>
+                    <td class="text-center align-middle">
+                        {{ player.lives }}
                     </td>
                 </tr>
                 </tbody>
@@ -82,38 +86,6 @@
                 </tr>
                 </tbody>
             </table>
-            {% if player.lost %}
-                <br>
-                <h3> Lost to </h3>
-                <br>
-                <div class="row">
-                    {% for loser in player.lost %}
-                        <div class="col-md-4">
-                            <a class="btn btn-block btn-danger"
-                               href="{{ url_for('profile', game_id=game_id, player_id=loser) }}">
-                                {{ loser }}
-                            </a>
-                        </div>
-                    {% endfor %}
-                </div>
-            {% endif %}
-            {% if player.won %}
-                <br>
-                <h3> Won against </h3>
-                {% for winner_batch in player.won|batch(3) %}
-                    <br>
-                    <div class="row">
-                        {% for winner in winner_batch %}
-                            <div class="col-md-4">
-                                <a class="btn btn-block btn-success"
-                                   href="{{ url_for('profile', game_id=game_id, player_id=winner) }}">
-                                    {{ winner }}
-                                </a>
-                            </div>
-                        {% endfor %}
-                    </div>
-                {% endfor %}
-            {% endif %}
             {% if player.byes %}
                 <br>
                 <h3> Byes in following rounds </h3>
@@ -133,5 +105,54 @@
             {% endif %}
         </div>
     </div>
+    {% if player.lost %}
+        <br>
+        <h3> Lost to </h3>
+        {% for loser_batch in player.lost|batch(3) %}
+            <br>
+            <div class="row">
+                {% for loser in loser_batch %}
+                    <div class="col-md-4 align-content-center">
+                        <a class="{{ loser.btn_class }}"
+                           href="{{ url_for('profile', game_id=game_id, player_id=loser.name) }}">
+                            {{ loser.name }}
+                            {% if loser.rank %}
+                                &nbsp;({{ loser.rank }})
+                            {% endif %}
+                        </a>
+                        <a href="{{ url_for('profile', game_id=game_id, player_id=loser.name) }}">
+                            <img class="{{ loser.image_border_class }}" alt="{{ loser.name }}"
+                                 src="{{ url_for('static', filename=loser.image) }}">
+                        </a>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endfor %}
+    {% endif %}
+    {% if player.won %}
+        <br>
+        <h3> Won against </h3>
+        {% for winner_batch in player.won|batch(3) %}
+            <br>
+            <div class="row">
+                {% for winner in winner_batch %}
+                    <div class="col-md-4 align-content-center">
+                        <a class="{{ winner.btn_class }}"
+                           href="{{ url_for('profile', game_id=game_id, player_id=winner.name) }}">
+                            {{ winner.name }}
+                            {% if winner.rank %}
+                                &nbsp;({{ winner.rank }})
+                            {% endif %}
+                        </a>
+                        <a href="{{ url_for('profile', game_id=game_id, player_id=winner.name) }}">
+                            <img class="{{ winner.image_border_class }}" alt="{{ winner.name }}"
+                                 src="{{ url_for('static', filename=winner.image) }}">
+                        </a>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endfor %}
+    {% endif %}
+
     <br>
 {% endblock %}

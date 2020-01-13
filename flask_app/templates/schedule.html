@@ -41,12 +41,18 @@
                     <a class="btn btn-block btn-primary"
                        href="{{ url_for('profile', game_id=game_id, player_id=schedule.player1) }}">
                         {{ schedule.player1 }}
+                        {% if schedule.player1_rank %}
+                            &nbsp;({{ schedule.player1_rank }})
+                        {% endif %}
                     </a>
                 </td>
                 <td class="text-center align-middle">
                     <a class="btn btn-block btn-primary"
                        href="{{ url_for('profile', game_id=game_id, player_id=schedule.player2) }}">
                         {{ schedule.player2 }}
+                        {% if schedule.player2_rank %}
+                            &nbsp;({{ schedule.player2_rank }})
+                        {% endif %}
                     </a>
                 </td>
                 <td class="text-center align-middle">
