@@ -1,6 +1,6 @@
 from typing import List
 
-from flask_app.firestore_ci import FirestoreDocument
+from firestore_ci import FirestoreDocument
 
 
 class Game(FirestoreDocument):
@@ -32,7 +32,7 @@ class Player(FirestoreDocument):
 
     @property
     def image(self) -> str:
-        return f"{self.game}/{self.name}.jpg"
+        return f"images/{self.name}.jpg"
 
     @property
     def byes_count(self) -> int:

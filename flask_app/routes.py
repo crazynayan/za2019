@@ -6,7 +6,6 @@ from flask_login import login_required
 
 from flask_app import za_app
 from flask_app.drive import Drive
-from flask_app.firestore_ci import ORDER_DESCENDING, FILTER_IN
 from flask_app.forms import GameForm, MatchForm
 from flask_app.models import Game, Player, Schedule
 
@@ -16,7 +15,7 @@ from flask_app.models import Game, Player, Schedule
 @za_app.route('/home')
 @login_required
 def home() -> Response:
-    games = Game.objects.get()
+    games = Game.objects.order_by('name', Game.objects.ORDER_DESCENDING).get()
     return render_template('home.html', games=games)
 
 
@@ -92,8 +91,8 @@ def play_match(game_id: str, match_id: str) -> Response:
 @login_required
 def leaderboard(game_id: str) -> Response:
     page_size = 50
-    players = Player.objects.filter_by(game=game_id).order_by('points', ORDER_DESCENDING). \
-        order_by('tie_break', ORDER_DESCENDING).order_by('rank').limit(page_size).get()
+    players = Player.objects.filter_by(game=game_id).order_by('points', Player.objects.ORDER_DESCENDING). \
+        order_by('tie_break', Player.objects.ORDER_DESCENDING).order_by('rank').limit(page_size).get()
     return render_template('leaderboard.html', players=players, game_id=game_id, title=f'Top {page_size}')
 
 
@@ -124,7 +123,7 @@ def playing_all(game_id: str) -> Response:
 @za_app.route('/games/<string:game_id>/rounds')
 @login_required
 def schedule_rounds(game_id: str) -> Response:
-    last_match = Schedule.objects.filter_by(game=game_id).order_by('match', ORDER_DESCENDING).first()
+    last_match = Schedule.objects.filter_by(game=game_id).order_by('match', Schedule.objects.ORDER_DESCENDING).first()
     rounds = list(range(1, last_match.round + 1)) if last_match else list()
     return render_template('rounds.html', rounds=rounds, game_id=game_id)
 
@@ -133,7 +132,8 @@ def schedule_rounds(game_id: str) -> Response:
 @login_required
 def schedule_fixtures(game_id: str, requested_round: int) -> Response:
     schedules = Schedule.objects.filter_by(game=game_id, round=requested_round).order_by('match').get()
-    players = Player.objects.filter_by(game=game_id).filter('byes', FILTER_IN, requested_round).get()
+    players = Player.objects.filter_by(game=game_id).filter('byes', Player.objects.ARRAY_CONTAINS,
+                                                            requested_round).get()
     return render_template('schedule.html', schedules=schedules, round=requested_round, players=players,
                            game_id=game_id)
 
@@ -159,7 +159,7 @@ def get_match(player1: Player, players: List[Player], random_choice: bool) -> Op
 
 
 def prepare_schedule(game_id: str, random_choice: bool = False) -> bool:
-    last_match = Schedule.objects.filter_by(game=game_id).order_by('match', ORDER_DESCENDING).first()
+    last_match = Schedule.objects.filter_by(game=game_id).order_by('match', Schedule.objects.ORDER_DESCENDING).first()
     next_round = last_match.round + 1 if last_match else 1
     next_match = last_match.match + 1 if last_match else 1
     match_players: List[Player] = Player.objects.filter_by(game=game_id).filter('lives', '>', 0).get()
@@ -215,8 +215,8 @@ def sync_points(players: List[Player]) -> None:
 def update_rank(game_id: str) -> None:
     players = Player.objects.filter_by(game=game_id).get()
     sync_points(players)
-    last_match: Schedule = Schedule.objects.filter_by(game=game_id).order_by('match', ORDER_DESCENDING).first()
-    life_increase = True if last_match.round > 2 and last_match.round % 2 == 1 else False
+    last_match = Schedule.objects.filter_by(game=game_id).order_by('match', Schedule.objects.ORDER_DESCENDING).first()
+    life_increase = True if last_match and last_match.round % 3 == 0 else False
     players.sort(key=lambda player_sort: (-player_sort.points, -player_sort.tie_break, -player_sort.tie_break2,
                                           -player_sort.tie_break3))
     for player in players:

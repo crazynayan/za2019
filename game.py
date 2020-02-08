@@ -7,8 +7,6 @@ from flask_app.drive2 import Drive2
 # noinspection PyPep8
 from flask_app.models import Game, Player, Schedule
 # noinspection PyPep8
-from flask_app.drive import Drive, STATIC_FOLDER
-# noinspection PyPep8
 from flask_app import routes
 
 
@@ -48,13 +46,13 @@ def name_replace(game_id: str, old_name: str, new_name: str):
     if not player:
         print("Player not found")
         return
-    if player.name not in Drive.get_files(game_id):
-        print("File not found")
-        return
-    path = os.path.join(os.path.dirname(os.path.abspath(__file__)), STATIC_FOLDER, game_id)
-    old_file = os.path.join(f"{path}/{old_name}.jpg")
-    new_file = os.path.join(f"{path}/{new_name}.jpg")
-    os.rename(old_file, new_file)
+    # if player.name not in Drive.get_files(game_id):
+    #     print("File not found")
+    #     return
+    # path = os.path.join(os.path.dirname(os.path.abspath(__file__)), STATIC_FOLDER, game_id)
+    # old_file = os.path.join(f"{path}/{old_name}.jpg")
+    # new_file = os.path.join(f"{path}/{new_name}.jpg")
+    # os.rename(old_file, new_file)
     player.name = new_name
     player.save()
     name_replace_schedule(game_id, old_name, new_name)
@@ -156,3 +154,28 @@ def duplicate_matches(game_id: str):
         if len(player.lost) > len(set(player.lost)):
             print(f"** {player.name} lost against **")
             print(player.lost)
+
+
+def rename_game(old_game_id: str, new_game_id: str):
+    game = Game.get_by_id(old_game_id)
+    if not game:
+        print('Game not found.')
+        return
+    game.delete()
+    game = Game()
+    game.name = new_game_id
+    game.set_id(new_game_id)
+    game.save()
+    print('Game ID updated. Starting Player update.')
+    players = Player.objects.filter_by(game=old_game_id).get()
+    for index, schedule in enumerate(players):
+        schedule.game = new_game_id
+        schedule.save()
+        print(f'Player: {index + 1} of {len(players)} updated.')
+    print('Starting Schedule update.')
+    schedules = Schedule.objects.filter_by(game=old_game_id).get()
+    for index, schedule in enumerate(schedules):
+        schedule.game = new_game_id
+        schedule.save()
+        print(f'Schedule: {index + 1} of {len(schedules)} updated.')
+    print('Game ID rename complete.')
