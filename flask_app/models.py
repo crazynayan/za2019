@@ -9,8 +9,11 @@ class Game(FirestoreDocument):
 
     def __init__(self):
         super().__init__()
-        self.name = str()
-        self.player_count = str()
+        self.name: str = str()
+        self.player_count: int = 0
+        self.completed: bool = False
+        self.round: int = 1
+        self.match: int = 0
 
 
 Game.init()

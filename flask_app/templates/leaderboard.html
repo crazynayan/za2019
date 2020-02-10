@@ -46,6 +46,7 @@
             <th scope="col" class="text-center">R#</th>
             <th scope="col" class="text-center">Name</th>
             <th scope="col" class="text-center">Image</th>
+            <th scope="col" class="text-center">Played</th>
             <th scope="col" class="text-center">Points</th>
             <th scope="col" class="text-center">TB1</th>
             <th scope="col" class="text-center">TB2</th>
@@ -71,6 +72,9 @@
                                  src="{{ url_for('static', filename=player.image) }}" alt="{{ player.name }}">
                         </div>
                     </div>
+                </td>
+                <td class="text-center align-middle">
+                    {{ player.played_count }}
                 </td>
                 <td class="text-center align-middle">
                     {{ player.points }}

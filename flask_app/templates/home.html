@@ -10,22 +10,25 @@
     {% if games %}
         {% for game in games %}
             <div class="row">
-                <div class="col-md-3">
-                    <a class="btn btn-block btn-success" href="{{ url_for('next_match_up', game_id=game.id) }}">
+                <div class="col-md">
+                    {% if game.completed %}
+                        <a class="btn btn-block btn-light" href="#">
                         {{ game.name.upper() }}
+                    {% else %}
+                        <a class="btn btn-block btn-success" href="{{ url_for('next_match_up', game_id=game.id) }}">
+                        {{ game.name.upper() }}
+                    {% endif %}
                     </a>
                 </div>
-                <div class="col-md-3">
-                    <a class="btn btn-block btn-success" href="{{ url_for('next_match_up', game_id=game.id) }}">
-                        Play
-                    </a>
+                <div class="col-md text-center">
+                    R#{{ game.round }} M#{{ game.match }} P#{{ game.player_count }}
                 </div>
-                <div class="col-md-3">
+                <div class="col-md">
                     <a class="btn btn-block btn-primary" href="{{ url_for('leaderboard', game_id=game.id) }}">
                         Leaderboard
                     </a>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md">
                     <a class="btn btn-block btn-primary" href="{{ url_for('schedule_rounds', game_id=game.id) }}">
                         Fixtures & Results
                     </a>

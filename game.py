@@ -236,6 +236,16 @@ def create_players(game_id: str, player_list: list):
     return
 
 
+def update_games():
+    for game in Game.objects.get():
+        match = Schedule.objects.filter_by(game=game.id).order_by('match', Schedule.objects.ORDER_DESCENDING).first()
+        game.round = match.round
+        game.match = match.match
+        game.player_count = len(Player.objects.filter_by(game=game.id).get())
+        game.save()
+    return
+
+
 SEASON = {
     '2020-SA-LW1': {'2019-SO-LO1': 80, '2019-SO-LK2': 128, '2019-SO-LE3': 48},
     '2020-SA-LS2': {'2019-SO-LO1': 34, '2019-SO-LK2': 128, '2019-SO-LE3': 88},

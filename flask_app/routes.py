@@ -41,15 +41,21 @@ def create_game() -> Response:
 @za_app.route('/games/<string:game_id>/next_match_up', methods=['GET', 'POST'])
 @login_required
 def next_match_up(game_id: str) -> Response:
+    game = Game.get_by_id(game_id)
+    if not game or game.completed:
+        flash("Game Over")
+        return redirect(url_for('home'))
     match = Schedule.objects.filter_by(game=game_id, winner=str()).order_by('match').first()
-    if not match:
-        update_rank(game_id)
-        if prepare_schedule(game_id):
-            flash("A new round begins")
-        else:
-            flash("Game Over")
-        return redirect(url_for('home', game_id=game_id))
-    return redirect(url_for('play_match', game_id=game_id, match_id=match.id))
+    if match:
+        return redirect(url_for('play_match', game_id=game_id, match_id=match.id))
+    update_rank(game_id)
+    if prepare_schedule(game_id):
+        flash("A new round begins")
+    else:
+        flash("Game Over")
+        game.completed = True
+        game.save()
+    return redirect(url_for('home'))
 
 
 @za_app.route('/games/<string:game_id>/matches/<string:match_id>', methods=['GET', 'POST'])
@@ -58,7 +64,7 @@ def play_match(game_id: str, match_id: str) -> Response:
     match = Schedule.get_by_id(match_id)
     if not match:
         flash('Error in retrieving match')
-        return redirect(url_for('home', game_id=game_id))
+        return redirect(url_for('home'))
     player1: Player = Player.objects.filter_by(game=game_id, name=match.player1).first()
     player2: Player = Player.objects.filter_by(game=game_id, name=match.player2).first()
     form = MatchForm(player1.name, player2.name)
@@ -189,6 +195,11 @@ def prepare_schedule(game_id: str, random_choice: bool = False) -> bool:
         match_players.remove(player2)
         next_match += 1
         schedule_prepared = True
+    if schedule_prepared:
+        game = Game.get_by_id(game_id)
+        game.round = next_round
+        game.match = next_match - 1
+        game.save()
     return schedule_prepared
 
 
