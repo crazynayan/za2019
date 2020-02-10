@@ -2,12 +2,15 @@ from typing import List
 
 from firestore_ci import FirestoreDocument
 
+from flask_app import za_app
+
 
 class Game(FirestoreDocument):
 
     def __init__(self):
         super().__init__()
         self.name = str()
+        self.player_count = str()
 
 
 Game.init()
@@ -32,7 +35,11 @@ class Player(FirestoreDocument):
 
     @property
     def image(self) -> str:
-        return f"images/{self.name}.jpg"
+        if not any(f"{self.name}{ext}" in za_app.config['IMAGES'] for ext in za_app.config['EXT']):
+            return f"/images/SI001.jpg"
+        file_name = next(iter(f"{self.name}{ext}" for ext in za_app.config['EXT']
+                              if f"{self.name}{ext}" in za_app.config['IMAGES']))
+        return f"images/{file_name}"
 
     @property
     def byes_count(self) -> int:

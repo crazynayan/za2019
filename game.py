@@ -7,7 +7,7 @@ from flask_app.drive2 import Drive2
 # noinspection PyPep8
 from flask_app.models import Game, Player, Schedule
 # noinspection PyPep8
-from flask_app import routes
+from flask_app import routes, za_app
 
 
 def delete_all(game_id: str):
@@ -168,9 +168,9 @@ def rename_game(old_game_id: str, new_game_id: str):
     game.save()
     print('Game ID updated. Starting Player update.')
     players = Player.objects.filter_by(game=old_game_id).get()
-    for index, schedule in enumerate(players):
-        schedule.game = new_game_id
-        schedule.save()
+    for index, player in enumerate(players):
+        player.game = new_game_id
+        player.save()
         print(f'Player: {index + 1} of {len(players)} updated.')
     print('Starting Schedule update.')
     schedules = Schedule.objects.filter_by(game=old_game_id).get()
@@ -179,3 +179,67 @@ def rename_game(old_game_id: str, new_game_id: str):
         schedule.save()
         print(f'Schedule: {index + 1} of {len(schedules)} updated.')
     print('Game ID rename complete.')
+
+
+def create_season(game_dict: dict) -> None:
+    games = {game.id: dict() for game in Game.objects.get()}
+    player_count_dict = {game_id: 0 for _, season in game_dict.items() for game_id in season}
+    print('Starting validation')
+    for _, season in game_dict.items():
+        for game_id, player_count in season.items():
+            player_count_dict[game_id] += player_count
+    for _, season in game_dict.items():
+        for game_id in season:
+            if game_id not in games:
+                print(f'Game {game_id}: Not found')
+                return
+            games[game_id] = Player.objects.filter_by(game=game_id).get()
+            games[game_id].sort(key=lambda player_item: player_item.rank)
+            if len(games[game_id]) != player_count_dict[game_id]:
+                print(f'Game {game_id}: Count Mismatch. DB={len(games[game_id])}. Input={player_count_dict[game_id]}.')
+                return
+    print('Validation complete')
+    for season_id, season in game_dict.items():
+        game = Game()
+        game.name = season_id
+        game.player_count = sum(player_count for _, player_count in season.items())
+        game.set_id(season_id)
+        game.save()
+        print(f'{season_id}: Game created. Starting player creation')
+        for game_id, player_count in season.items():
+            if player_count == 0:
+                continue
+            for index, player in enumerate(games[game_id][: player_count]):
+                Player.create_from_dict({'name': player.name, 'game': season_id})
+                print(f'{season_id}: {index + 1} of {player_count} players created from {game_id}')
+            del games[game_id][: player_count]
+            print(f'{season_id}: All players extracted from {game_id}')
+        print(f'{season_id}: {game.player_count} players creation complete')
+    return
+
+
+def create_players(game_id: str, player_list: list):
+    print('Starting Validation')
+    games = {game.id: dict() for game in Game.objects.get()}
+    if game_id not in games:
+        print(f'Game {game_id}: Not found')
+        return
+    for player_name in player_list:
+        if not any(f"{player_name}{ext}" in za_app.config['IMAGES'] for ext in za_app.config['EXT']):
+            print(f'Player {player_name} does not have a image.')
+            return
+    print('Validation Complete')
+    for index, player_name in enumerate(player_list):
+        Player.create_from_dict({'name': player_name, 'game': game_id})
+        print(f'{game_id}: {index + 1} of {len(player_list)} players created.')
+    print('Player creation complete.')
+    return
+
+
+SEASON = {
+    '2020-SA-LW1': {'2019-SO-LO1': 80, '2019-SO-LK2': 128, '2019-SO-LE3': 48},
+    '2020-SA-LS2': {'2019-SO-LO1': 34, '2019-SO-LK2': 128, '2019-SO-LE3': 88},
+    '2020-SA-LO3': {'2019-SO-LO1': 0, '2019-SO-LK2': 64, '2019-SO-LE3': 192},
+    '2020-SA-LJ4': {'2019-SO-LO1': 0, '2019-SO-LK2': 32, '2019-SO-LE3': 224},
+    '2020-SA-LE5': {'2019-SO-LO1': 0, '2019-SO-LK2': 32, '2019-SO-LE3': 319},
+}
