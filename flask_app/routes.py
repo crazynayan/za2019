@@ -5,8 +5,7 @@ from flask import render_template, flash, redirect, url_for, Response
 from flask_login import login_required
 
 from flask_app import za_app
-from flask_app.drive import Drive
-from flask_app.forms import GameForm, MatchForm
+from flask_app.forms import MatchForm
 from flask_app.models import Game, Player, Schedule
 
 
@@ -17,25 +16,6 @@ from flask_app.models import Game, Player, Schedule
 def home() -> Response:
     games = Game.objects.order_by('name', Game.objects.ORDER_DESCENDING).get()
     return render_template('home.html', games=games)
-
-
-@za_app.route('/games', methods=['GET', 'POST'])
-@login_required
-def create_game() -> Response:
-    form = GameForm()
-    if not form.validate_on_submit():
-        return render_template('base_form.html', form=form, title='Create Game')
-    folder_name = form.folder.data
-    game: Game = Game()
-    game.name = folder_name
-    game.set_id(folder_name)
-    game.save()
-    files = Drive.get_files(folder_name)
-    for file in files:
-        Player.create_from_dict({'name': file, 'game': folder_name})
-    prepare_schedule(folder_name, random_choice=True)
-    flash(f"{folder_name} created with {len(files)} players")
-    return redirect(url_for('home'))
 
 
 @za_app.route('/games/<string:game_id>/next_match_up', methods=['GET', 'POST'])
