@@ -2,11 +2,8 @@ import os
 
 os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = 'google-cloud.json'
 
-# noinspection PyPep8
 from flask_app.drive2 import Drive2
-# noinspection PyPep8
-from flask_app.models import Game, Player, Schedule
-# noinspection PyPep8
+from flask_app.models import Game, Player, Schedule, Group
 from flask_app import routes, za_app
 
 
@@ -253,3 +250,29 @@ SEASON = {
     '2020-SA-LJ4': {'2019-SO-LO1': 0, '2019-SO-LK2': 32, '2019-SO-LE3': 224},
     '2020-SA-LE5': {'2019-SO-LO1': 0, '2019-SO-LK2': 32, '2019-SO-LE3': 319},
 }
+
+
+def create_groups():
+    groups = list()
+    players = Player.objects.filter("game", Player.objects.IN, list(SEASON)).get()
+    for player in players:
+        group = next((group for group in groups if group.name == player.initial), None)
+        if not group:
+            group = Group()
+            group.name = player.initial
+            groups.append(group)
+        group.player_maps.append({"player": player.name, "rank": player.rank})
+        group.player_count = len(group.player_maps)
+    Group.create_from_list_of_dict([group.doc_to_dict() for group in groups])
+
+
+def adjust_group_ranks():
+    players = Player.objects.filter("game", Player.objects.IN, list(SEASON)).get()
+    groups = Group.objects.get()
+    for group in groups:
+        for player_map in group.player_maps:
+            player = next(player for player in players if player.name == player_map["player"])
+            player_league = int(player.game[-1:])
+            player_map["rank"] = (player_league - 1) * 256 + player.rank
+        group.player_maps.sort(key=lambda item: item["rank"])
+    Group.save_all(groups)

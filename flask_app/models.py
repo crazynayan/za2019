@@ -23,6 +23,7 @@ class Player(FirestoreDocument):
 
     def __init__(self):
         super().__init__()
+        self.initial: str = str()
         self.name: str = str()
         self.game: str = str()
         self.won: List[str] = list()
@@ -101,3 +102,22 @@ class Schedule(FirestoreDocument):
 
 
 Schedule.init()
+
+
+class PlayerMap:
+
+    def __init__(self):
+        self.player: str = str()
+        self.rank: int = 0
+
+
+class Group(FirestoreDocument):
+
+    def __init__(self):
+        super().__init__()
+        self.name: str = str()
+        self.player_maps: List[dict] = list()
+        self.player_count: int = 0
+
+
+Group.init()

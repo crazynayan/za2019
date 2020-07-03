@@ -217,6 +217,5 @@ def update_rank(game_id: str) -> None:
         player.rank = players.index(rank_player) + 1
         if life_increase and player.lives > 0:
             player.lives += 1
-    for player in players:
-        player.save()
+    Player.save_all(players)
     return
