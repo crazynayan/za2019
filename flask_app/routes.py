@@ -2,9 +2,9 @@ import random
 from typing import List, Optional
 
 from flask import render_template, flash, redirect, url_for, Response
-from flask_login import login_required
 
 from flask_app import za_app
+from flask_app.auth import cookie_login_required
 from flask_app.forms import MatchForm
 from flask_app.models import Game, Player, Schedule
 
@@ -12,14 +12,14 @@ from flask_app.models import Game, Player, Schedule
 @za_app.route('/')
 @za_app.route('/index')
 @za_app.route('/home')
-@login_required
+@cookie_login_required
 def home() -> Response:
     games = Game.objects.order_by('name', Game.objects.ORDER_DESCENDING).get()
     return render_template('home.html', games=games)
 
 
 @za_app.route('/games/<string:game_id>/next_match_up', methods=['GET', 'POST'])
-@login_required
+@cookie_login_required
 def next_match_up(game_id: str) -> Response:
     game = Game.get_by_id(game_id)
     if not game or game.completed:
@@ -39,7 +39,7 @@ def next_match_up(game_id: str) -> Response:
 
 
 @za_app.route('/games/<string:game_id>/matches/<string:match_id>', methods=['GET', 'POST'])
-@login_required
+@cookie_login_required
 def play_match(game_id: str, match_id: str) -> Response:
     match = Schedule.get_by_id(match_id)
     if not match:
@@ -74,7 +74,7 @@ def play_match(game_id: str, match_id: str) -> Response:
 
 
 @za_app.route('/games/<string:game_id>/leaderboard')
-@login_required
+@cookie_login_required
 def leaderboard(game_id: str) -> Response:
     page_size = 50
     players = Player.objects.filter_by(game=game_id).order_by('points', Player.objects.ORDER_DESCENDING). \
@@ -83,7 +83,7 @@ def leaderboard(game_id: str) -> Response:
 
 
 @za_app.route('/games/<string:game_id>/leaderboard/leaderboard/all')
-@login_required
+@cookie_login_required
 def leaderboard_all(game_id: str) -> Response:
     players = Player.objects.filter_by(game=game_id).get()
     players.sort(key=lambda player: player.rank)
@@ -91,7 +91,7 @@ def leaderboard_all(game_id: str) -> Response:
 
 
 @za_app.route('/games/<string:game_id>/leaderboard/eliminated/all')
-@login_required
+@cookie_login_required
 def eliminated_all(game_id: str) -> Response:
     players = Player.objects.filter_by(game=game_id, lives=0).get()
     players.sort(key=lambda player: (-player.points, player.rank))
@@ -99,7 +99,7 @@ def eliminated_all(game_id: str) -> Response:
 
 
 @za_app.route('/games/<string:game_id>/playing/all')
-@login_required
+@cookie_login_required
 def playing_all(game_id: str) -> Response:
     players = Player.objects.filter_by(game=game_id).filter('lives', '>', 0).get()
     players.sort(key=lambda player: (-player.points, player.rank))
@@ -107,7 +107,7 @@ def playing_all(game_id: str) -> Response:
 
 
 @za_app.route('/games/<string:game_id>/rounds')
-@login_required
+@cookie_login_required
 def schedule_rounds(game_id: str) -> Response:
     last_match = Schedule.objects.filter_by(game=game_id).order_by('match', Schedule.objects.ORDER_DESCENDING).first()
     rounds = list(range(1, last_match.round + 1)) if last_match else list()
@@ -115,7 +115,7 @@ def schedule_rounds(game_id: str) -> Response:
 
 
 @za_app.route('/games/<string:game_id>/rounds/<int:requested_round>', methods=['GET', 'POST'])
-@login_required
+@cookie_login_required
 def schedule_fixtures(game_id: str, requested_round: int) -> Response:
     schedules = Schedule.objects.filter_by(game=game_id, round=requested_round).order_by('match').get()
     players = Player.objects.filter_by(game=game_id).filter('byes', Player.objects.ARRAY_CONTAINS,
@@ -125,7 +125,7 @@ def schedule_fixtures(game_id: str, requested_round: int) -> Response:
 
 
 @za_app.route('/games/<string:game_id>/players/<string:player_id>')
-@login_required
+@cookie_login_required
 def profile(game_id: str, player_id: str):
     player: Player = Player.objects.filter_by(game=game_id, name=player_id).first()
     player.won = [Player.objects.filter_by(game=game_id, name=player_name).first() for player_name in player.won]
