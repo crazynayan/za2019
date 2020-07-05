@@ -150,7 +150,7 @@ def prepare_schedule(game_id: str, random_choice: bool = False) -> bool:
     next_match = last_match.match + 1 if last_match else 1
     match_players: List[Player] = Player.objects.filter_by(game=game_id).filter('lives', '>', 0).get()
     match_players.sort(key=lambda player: player.rank)
-    schedule_prepared = False
+    schedules = list()
     while match_players:
         if match_players[-1].byes:
             player1 = match_players[-1]
@@ -168,19 +168,19 @@ def prepare_schedule(game_id: str, random_choice: bool = False) -> bool:
                 player1.save()
             match_players.remove(player1)
             continue
-        Schedule.create_from_dict({'game': game_id, 'player1': player1.name, 'player2': player2.name,
-                                   'match': next_match, 'round': next_round, 'player1_rank': player1.rank,
-                                   'player2_rank': player2.rank})
+        schedules.append({'game': game_id, 'player1': player1.name, 'player2': player2.name, 'round': next_round,
+                          'match': next_match, 'player1_rank': player1.rank, 'player2_rank': player2.rank})
         match_players.remove(player1)
         match_players.remove(player2)
         next_match += 1
-        schedule_prepared = True
-    if schedule_prepared:
-        game = Game.get_by_id(game_id)
-        game.round = next_round
-        game.match = next_match - 1
-        game.save()
-    return schedule_prepared
+    if not schedules:
+        return False
+    Schedule.create_from_list_of_dict(schedules)
+    game = Game.get_by_id(game_id)
+    game.round = next_round
+    game.match = next_match - 1
+    game.save()
+    return True
 
 
 def sync_points(players: List[Player]) -> None:
