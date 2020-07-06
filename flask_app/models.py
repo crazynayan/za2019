@@ -2,7 +2,7 @@ from typing import List
 
 from firestore_ci import FirestoreDocument
 
-from flask_app import za_app
+from flask_app.file import File
 
 
 class Game(FirestoreDocument):
@@ -39,11 +39,7 @@ class Player(FirestoreDocument):
 
     @property
     def image(self) -> str:
-        if not any(f"{self.name}{ext}" in za_app.config['IMAGES'] for ext in za_app.config['EXT']):
-            return f"/images/SI001.jpg"
-        file_name = next(iter(f"{self.name}{ext}" for ext in za_app.config['EXT']
-                              if f"{self.name}{ext}" in za_app.config['IMAGES']))
-        return f"images/{file_name}"
+        return File.url(self.name)
 
     @property
     def byes_count(self) -> int:

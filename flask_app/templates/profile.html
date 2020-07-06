@@ -25,7 +25,7 @@
     <div class="row">
         <div class="col-md-6">
             <img class="{{ player.image_border_class }}" alt="{{ player.name }}"
-                 src="{{ url_for('static', filename=player.image) }}">
+                 src="{{ player.image }}">
         </div>
         <div class="col-md-6">
             <br>
@@ -122,7 +122,7 @@
                         </a>
                         <a href="{{ url_for('profile', game_id=game_id, player_id=loser.name) }}">
                             <img class="{{ loser.image_border_class }}" alt="{{ loser.name }}"
-                                 src="{{ url_for('static', filename=loser.image) }}">
+                                 src="{{ loser.image }}">
                         </a>
                     </div>
                 {% endfor %}
@@ -146,7 +146,7 @@
                         </a>
                         <a href="{{ url_for('profile', game_id=game_id, player_id=winner.name) }}">
                             <img class="{{ winner.image_border_class }}" alt="{{ winner.name }}"
-                                 src="{{ url_for('static', filename=winner.image) }}">
+                                 src="{{ winner.image }}">
                         </a>
                     </div>
                 {% endfor %}

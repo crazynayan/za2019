@@ -53,17 +53,17 @@
                     <label class="form-check-label">
                         {{ form.player1(class="form-check-input") }}
                         <img class="{{ player1.image_border_class }}" alt="{{ player1.name }}"
-                             src="{{ url_for('static', filename=player1.image) }}">
+                             src="{{ player1.image }}">
                     </label>
                 </div>
             </div>
-            <div class="col-md-6 text-center font-weight-bold       ">
+            <div class="col-md-6 text-center font-weight-bold">
                 {{ player2.name }} (Rank-{{ player2.rank }} & Lives-{{ player2.lives }})
                 <div class="form-check">
                     <label class="form-check-label">
                         {{ form.player2(class="form-check-input") }}
                         <img class="{{ player2.image_border_class }}" alt="{{ player2.name }}"
-                             src="{{ url_for('static', filename=player2.image) }}">
+                             src="{{ player2.image }}">
                     </label>
                 </div>
             </div>
