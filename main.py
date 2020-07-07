@@ -26,7 +26,10 @@ def update_url(_, __):
     players.sort(key=lambda item: item.id)
     print(f"Players sorted by ID. Now generating URL.")
     with ThreadPoolExecutor(max_workers=len(players)) as executor:
-        threads = {executor.submit(generate_url, player) for player in players}
+        threads = set()
+        for player in players:
+            threads.add(executor.submit(generate_url, player))
+            print(f"{len(threads)} of {len(players)} threads created.")
         results = list()
         for future in as_completed(threads):
             results.append(future.result())
