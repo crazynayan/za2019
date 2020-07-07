@@ -4,7 +4,7 @@ from typing import List
 import pytz
 from firestore_ci import FirestoreDocument
 
-from flask_app.file import Image
+from file import Image
 
 
 class Game(FirestoreDocument):
