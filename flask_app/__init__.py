@@ -8,7 +8,7 @@ za_app = Flask(__name__)
 za_app.config.from_object(Config)
 bootstrap = Bootstrap(za_app)
 login = LoginManager(za_app)
-login.login_view = 'login'
+login.login_view = 'auth.login'
 
 from flask_app.auth import bp as auth_bp
 
