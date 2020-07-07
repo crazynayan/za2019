@@ -15,7 +15,8 @@
                         <a class="btn btn-block btn-light" href="#">
                         {{ game.name.upper() }}
                     {% else %}
-                        <a class="btn btn-block btn-success" href="{{ url_for('next_match_up', game_id=game.id) }}">
+                        <a class="btn btn-block btn-success"
+                           href="{{ url_for('legacy.next_match_up', game_id=game.id) }}">
                         {{ game.name.upper() }}
                     {% endif %}
                     </a>
@@ -24,12 +25,13 @@
                     R#{{ game.round }} M#{{ game.match }} P#{{ game.player_count }}
                 </div>
                 <div class="col-md">
-                    <a class="btn btn-block btn-primary" href="{{ url_for('leaderboard', game_id=game.id) }}">
+                    <a class="btn btn-block btn-primary" href="{{ url_for('legacy.leaderboard', game_id=game.id) }}">
                         Leaderboard
                     </a>
                 </div>
                 <div class="col-md">
-                    <a class="btn btn-block btn-primary" href="{{ url_for('schedule_rounds', game_id=game.id) }}">
+                    <a class="btn btn-block btn-primary"
+                       href="{{ url_for('legacy.schedule_rounds', game_id=game.id) }}">
                         Fixtures & Results
                     </a>
                 </div>

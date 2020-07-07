@@ -6,12 +6,12 @@
             <h1>Rounds</h1>
         </div>
         <div class="col-md-4">
-            <a class="btn btn-block btn-success" href="{{ url_for('next_match_up', game_id=game_id) }}">
+            <a class="btn btn-block btn-success" href="{{ url_for('legacy.next_match_up', game_id=game_id) }}">
                 Play
             </a>
         </div>
         <div class="col-md-4">
-            <a class="btn btn-block btn-primary" href="{{ url_for('leaderboard', game_id=game_id) }}">
+            <a class="btn btn-block btn-primary" href="{{ url_for('legacy.leaderboard', game_id=game_id) }}">
                 Leaderboard
             </a>
         </div>
@@ -23,7 +23,7 @@
                 {% for round in rounds_batched %}
                     <div class="col-md-2">
                         <a class="btn btn-block btn-primary"
-                           href="{{ url_for('schedule_fixtures', game_id=game_id, requested_round=round) }}">
+                           href="{{ url_for('legacy.schedule_fixtures', game_id=game_id, requested_round=round) }}">
                             Round {{ round }}
                         </a>
                     </div>

@@ -6,17 +6,17 @@
             <h1>Round {{ round }}</h1>
         </div>
         <div class="col-md-3">
-            <a class="btn btn-block btn-success" href="{{ url_for('next_match_up', game_id=game_id) }}">
+            <a class="btn btn-block btn-success" href="{{ url_for('legacy.next_match_up', game_id=game_id) }}">
                 Play
             </a>
         </div>
         <div class="col-md-3">
-            <a class="btn btn-block btn-primary" href="{{ url_for('leaderboard', game_id=game_id) }}">
+            <a class="btn btn-block btn-primary" href="{{ url_for('legacy.leaderboard', game_id=game_id) }}">
                 Leaderboard
             </a>
         </div>
         <div class="col-md-3">
-            <a class="btn btn-block btn-primary" href="{{ url_for('schedule_rounds', game_id=game_id) }}">
+            <a class="btn btn-block btn-primary" href="{{ url_for('legacy.schedule_rounds', game_id=game_id) }}">
                 Rounds
             </a>
         </div>
@@ -39,7 +39,7 @@
                 </td>
                 <td class="text-center align-middle">
                     <a class="btn btn-block btn-primary"
-                       href="{{ url_for('profile', game_id=game_id, player_id=schedule.player1) }}">
+                       href="{{ url_for('legacy.profile', game_id=game_id, player_id=schedule.player1) }}">
                         {{ schedule.player1 }}
                         {% if schedule.player1_rank %}
                             &nbsp;({{ schedule.player1_rank }})
@@ -48,7 +48,7 @@
                 </td>
                 <td class="text-center align-middle">
                     <a class="btn btn-block btn-primary"
-                       href="{{ url_for('profile', game_id=game_id, player_id=schedule.player2) }}">
+                       href="{{ url_for('legacy.profile', game_id=game_id, player_id=schedule.player2) }}">
                         {{ schedule.player2 }}
                         {% if schedule.player2_rank %}
                             &nbsp;({{ schedule.player2_rank }})
@@ -58,7 +58,7 @@
                 <td class="text-center align-middle">
                     {% if schedule.winner %}
                         <a class="btn btn-block btn-success"
-                           href="{{ url_for('profile', game_id=game_id, player_id=schedule.winner) }}">
+                           href="{{ url_for('legacy.profile', game_id=game_id, player_id=schedule.winner) }}">
                             {{ schedule.winner }}
                         </a>
                     {% endif %}
@@ -80,7 +80,7 @@
                 {% for player in player_batch %}
                     <div class="col-md-2">
                         <a class="btn btn-block btn-primary"
-                           href="{{ url_for('profile', game_id=game_id, player_id=player.name) }}">
+                           href="{{ url_for('legacy.profile', game_id=game_id, player_id=player.name) }}">
                             {{ player.name }}
                         </a>
                     </div>

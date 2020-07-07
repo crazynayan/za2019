@@ -11,7 +11,7 @@
 {% block navbar %}
     <div class="container">
         <nav class="navbar navbar-dark bg-dark navbar-expand-sm">
-            <a class="navbar-brand" href="{{ url_for('home') }}">
+            <a class="navbar-brand" href="{{ url_for('legacy.home') }}">
                 <img src="{{ url_for('static', filename='brand.png') }}" alt="CI" width="30" height="30" class="">
             </a>
             <button class="navbar-toggler" data-toggle="collapse" data-target="#navbarMenu">
@@ -19,13 +19,13 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarMenu">
                 <div class="navbar-nav mr-auto">
-                    <a class="nav-item active nav-link" href="{{ url_for('home') }}">Home</a>
+                    <a class="nav-item active nav-link" href="{{ url_for('legacy.home') }}">Home</a>
                 </div>
                 <div class="navbar-nav ml-auto">
                     {% if current_user.is_anonymous %}
-                        <a class="nav-item active nav-link" href="{{ url_for('login') }}">Login</a>
+                        <a class="nav-item active nav-link" href="{{ url_for('auth.login') }}">Login</a>
                     {% else %}
-                        <a class="nav-item active nav-link" href="{{ url_for('logout') }}">Logout</a>
+                        <a class="nav-item active nav-link" href="{{ url_for('auth.logout') }}">Logout</a>
                     {% endif %}
                 </div>
             </div>

@@ -6,12 +6,12 @@
             <h1>{{ title }}</h1>
         </div>
         <div class="col-md-4">
-            <a class="btn btn-block btn-success" href="{{ url_for('next_match_up', game_id=game_id) }}">
+            <a class="btn btn-block btn-success" href="{{ url_for('legacy.next_match_up', game_id=game_id) }}">
                 Play
             </a>
         </div>
         <div class="col-md-4">
-            <a class="btn btn-block btn-primary" href="{{ url_for('schedule_rounds', game_id=game_id) }}">
+            <a class="btn btn-block btn-primary" href="{{ url_for('legacy.schedule_rounds', game_id=game_id) }}">
                 Fixtures & Results
             </a>
         </div>
@@ -19,22 +19,22 @@
     <br>
     <div class="row">
         <div class="col-md-3">
-            <a class="btn btn-block btn-primary" href="{{ url_for('leaderboard', game_id=game_id) }}">
+            <a class="btn btn-block btn-primary" href="{{ url_for('legacy.leaderboard', game_id=game_id) }}">
                 Leaderboard
             </a>
         </div>
         <div class="col-md-3">
-            <a class="btn btn-block btn-danger" href="{{ url_for('leaderboard_all', game_id=game_id) }}">
+            <a class="btn btn-block btn-danger" href="{{ url_for('legacy.leaderboard_all', game_id=game_id) }}">
                 Ranked
             </a>
         </div>
         <div class="col-md-3">
-            <a class="btn btn-block btn-danger" href="{{ url_for('playing_all', game_id=game_id) }}">
+            <a class="btn btn-block btn-danger" href="{{ url_for('legacy.playing_all', game_id=game_id) }}">
                 Playing
             </a>
         </div>
         <div class="col-md-3">
-            <a class="btn btn-block btn-danger" href="{{ url_for('eliminated_all', game_id=game_id) }}">
+            <a class="btn btn-block btn-danger" href="{{ url_for('legacy.eliminated_all', game_id=game_id) }}">
                 Eliminated
             </a>
         </div>
@@ -61,7 +61,7 @@
                 </td>
                 <td class="text-center align-middle">
                     <a class="{{ player.btn_class }}"
-                       href="{{ url_for('profile', game_id=game_id, player_id=player.name) }}">
+                       href="{{ url_for('legacy.profile', game_id=game_id, player_id=player.name) }}">
                         {{ player.name }} ({{ player.lives }})
                     </a>
                 </td>

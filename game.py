@@ -2,9 +2,10 @@ import os
 
 os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = 'google-cloud.json'
 
-from flask_app.drive2 import Drive2
-from flask_app.models import Game, Player, Schedule, Group
-from flask_app import routes, za_app
+from drive2 import Drive2
+from flask_app.legacy.models import Game, Player, Schedule, Group
+from flask_app import za_app
+from flask_app.legacy import routes
 
 
 def delete_all(game_id: str):

@@ -16,7 +16,8 @@ from wtforms.fields.html5 import EmailField
 from wtforms.validators import DataRequired
 
 from config import Config
-from flask_app import login, za_app
+from flask_app import login
+from flask_app.auth import bp
 
 
 def cookie_login_required(route_function):
@@ -86,30 +87,30 @@ class LoginForm(FlaskForm):
     submit = SubmitField('Sign In')
 
 
-@za_app.route('/login', methods=['GET', 'POST'])
+@bp.route('/login', methods=['GET', 'POST'])
 def login() -> Response:
     if current_user.is_authenticated:
-        return redirect(url_for('home'))
+        return redirect(url_for('legacy.home'))
     form = LoginForm()
     if not form.validate_on_submit():
         return render_template('base_form.html', title='Sign In', form=form)
     user = User.objects.filter_by(email=form.email.data).first()
     if not user or not user.check_password(form.password.data):
         flash(f"Invalid email or password.")
-        return redirect(url_for('login'))
+        return redirect(url_for('auth.login'))
     token = user.get_token()
     login_user(user=user)
     next_page = request.args.get('next')
     if not next_page or url_parse(next_page).netloc != '':
-        next_page = url_for('home')
+        next_page = url_for('legacy.home')
     response: Response = make_response(redirect(next_page))
     response.set_cookie("token", token, max_age=Config.TOKEN_EXPIRY, secure=Config.CI_SECURITY, httponly=True,
                         samesite="Strict")
     return response
 
 
-@za_app.route('/logout')
+@bp.route('/logout')
 def logout():
     current_user.revoke_token()
     logout_user()
-    return redirect(url_for('home'))
+    return redirect(url_for('auth.login'))

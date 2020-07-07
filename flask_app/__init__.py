@@ -10,5 +10,10 @@ bootstrap = Bootstrap(za_app)
 login = LoginManager(za_app)
 login.login_view = 'login'
 
-# noinspection PyPep8
-from flask_app import routes, auth
+from flask_app.auth import bp as auth_bp
+
+za_app.register_blueprint(auth_bp)
+
+from flask_app.legacy import bp as legacy_bp
+
+za_app.register_blueprint(legacy_bp)

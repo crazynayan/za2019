@@ -6,17 +6,17 @@
             <h1>{{ player.name }}-{{ player.rank }}</h1>
         </div>
         <div class="col-md-3">
-            <a class="btn btn-block btn-success" href="{{ url_for('next_match_up', game_id=game_id) }}">
+            <a class="btn btn-block btn-success" href="{{ url_for('legacy.next_match_up', game_id=game_id) }}">
                 Play
             </a>
         </div>
         <div class="col-md-3">
-            <a class="btn btn-block btn-primary" href="{{ url_for('leaderboard', game_id=game_id) }}">
+            <a class="btn btn-block btn-primary" href="{{ url_for('legacy.leaderboard', game_id=game_id) }}">
                 Leaderboard
             </a>
         </div>
         <div class="col-md-3">
-            <a class="btn btn-block btn-primary" href="{{ url_for('schedule_rounds', game_id=game_id) }}">
+            <a class="btn btn-block btn-primary" href="{{ url_for('legacy.schedule_rounds', game_id=game_id) }}">
                 Rounds
             </a>
         </div>
@@ -95,7 +95,7 @@
                         {% for round in byes_batch %}
                             <div class="col-md-4">
                                 <a class="btn btn-block btn-primary"
-                                   href="{{ url_for('schedule_fixtures', game_id=game_id, requested_round=round) }}">
+                                   href="{{ url_for('legacy.schedule_fixtures', game_id=game_id, requested_round=round) }}">
                                     R #{{ round }}
                                 </a>
                             </div>
@@ -114,13 +114,13 @@
                 {% for loser in loser_batch %}
                     <div class="col-md-4 align-content-center">
                         <a class="{{ loser.btn_class }}"
-                           href="{{ url_for('profile', game_id=game_id, player_id=loser.name) }}">
+                           href="{{ url_for('legacy.profile', game_id=game_id, player_id=loser.name) }}">
                             {{ loser.name }}
                             {% if loser.rank %}
                                 &nbsp;({{ loser.rank }})
                             {% endif %}
                         </a>
-                        <a href="{{ url_for('profile', game_id=game_id, player_id=loser.name) }}">
+                        <a href="{{ url_for('legacy.profile', game_id=game_id, player_id=loser.name) }}">
                             <img class="{{ loser.image_border_class }}" alt="{{ loser.name }}"
                                  src="{{ loser.image }}">
                         </a>
@@ -138,13 +138,13 @@
                 {% for winner in winner_batch %}
                     <div class="col-md-4 align-content-center">
                         <a class="{{ winner.btn_class }}"
-                           href="{{ url_for('profile', game_id=game_id, player_id=winner.name) }}">
+                           href="{{ url_for('legacy.profile', game_id=game_id, player_id=winner.name) }}">
                             {{ winner.name }}
                             {% if winner.rank %}
                                 &nbsp;({{ winner.rank }})
                             {% endif %}
                         </a>
-                        <a href="{{ url_for('profile', game_id=game_id, player_id=winner.name) }}">
+                        <a href="{{ url_for('legacy.profile', game_id=game_id, player_id=winner.name) }}">
                             <img class="{{ winner.image_border_class }}" alt="{{ winner.name }}"
                                  src="{{ winner.image }}">
                         </a>
