@@ -21,7 +21,7 @@ def update_url(_, __):
     print("Update URL function invoked")
     players = Player.objects.get()
     print(f"{len(players)} players read")
-    url_expiration = dt.datetime.utcnow().replace(tzinfo=pytz.UTC)
+    url_expiration = dt.datetime.utcnow().replace(tzinfo=pytz.UTC) + dt.timedelta(days=7)
     print(f"URLs are valid till {url_expiration.isoformat()}")
     players.sort(key=lambda item: item.id)
     print(f"Players sorted by ID. Now generating URL.")

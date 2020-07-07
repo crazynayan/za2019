@@ -43,11 +43,12 @@ class Player(FirestoreDocument):
 
     @property
     def image(self) -> str:
-        url_expiration = dt.datetime.utcnow().replace(tzinfo=pytz.UTC) + dt.timedelta(days=7)
-        if self.url and self.url_expiration < url_expiration:
+        now = dt.datetime.utcnow().replace(tzinfo=pytz.UTC)
+        if self.url and now < self.url_expiration:
             return self.url
         self.url = Image.url(self.name)
-        self.url_expiration = url_expiration
+        self.url_expiration = now + dt.timedelta(days=7)
+        self.save()
         return self.url
 
     @property
