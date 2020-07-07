@@ -1,8 +1,10 @@
+import datetime as dt
 from typing import List
 
+import pytz
 from firestore_ci import FirestoreDocument
 
-from flask_app.file import File
+from flask_app.file import Image
 
 
 class Game(FirestoreDocument):
@@ -36,10 +38,17 @@ class Player(FirestoreDocument):
         self.byes: List[int] = list()
         self.last_round: int = 0
         self.rank: int = 0
+        self.url: str = str()
+        self.url_expiration: dt.datetime = dt.datetime.utcnow().replace(tzinfo=pytz.UTC)
 
     @property
     def image(self) -> str:
-        return File.url(self.name)
+        url_expiration = dt.datetime.utcnow().replace(tzinfo=pytz.UTC) + dt.timedelta(days=7)
+        if self.url and self.url_expiration < url_expiration:
+            return self.url
+        self.url = Image.url(self.name)
+        self.url_expiration = url_expiration
+        return self.url
 
     @property
     def byes_count(self) -> int:
