@@ -3,8 +3,10 @@ from typing import List
 
 import pytz
 from firestore_ci import FirestoreDocument
+from wtforms import SelectMultipleField, widgets, SubmitField, ValidationError
 
 from config import BaseMap
+from flask_app import FSForm
 from flask_app.legacy.models import Player
 
 
@@ -55,6 +57,7 @@ class Group(FirestoreDocument):
         self.player_maps: List[dict] = list()
         self.player_count: int = 0
         self.group_rank: int = 0
+        self.selection: bool = False
 
     def __repr__(self) -> str:
         return f"{self.name}:{self.player_count}:{self.group_rank}"
@@ -77,3 +80,34 @@ class Group(FirestoreDocument):
 
 
 Group.init()
+
+
+class MultiCheckboxField(SelectMultipleField):
+    widget = widgets.ListWidget(prefix_label=False)
+    option_widget = widgets.CheckboxInput()
+
+
+class SelectionForm(FSForm):
+    player_options = MultiCheckboxField("Players")
+    submit = SubmitField("Finalize Selection")
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        query = Group.objects.filter_by(selection=False).filter("player_count", ">", 9)
+        self.group: Group = query.order_by("player_count", Group.objects.ORDER_DESCENDING).first()
+        if not self.group:
+            return
+        self.player_options.choices = [(player_map["player"], player_map["player"])
+                                       for player_map in self.group.player_maps]
+
+    @staticmethod
+    def validate_player_options(_, player_options):
+        if len(player_options.data) != 9:
+            raise ValidationError("You need to select 9 players")
+
+    def update(self):
+        for name in self.player_options.data:
+            player_map = next(player_map for player_map in self.group.player_maps if player_map["player"] == name)
+            player_map["selected"] = True
+        self.group.selection = True
+        self.group.save()
