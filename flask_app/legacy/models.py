@@ -108,29 +108,3 @@ class Schedule(FirestoreDocument):
 
 
 Schedule.init()
-
-
-class PlayerMap:
-
-    def __init__(self):
-        self.player: str = str()
-        self.rank: int = 0
-        self.selected: bool = False
-        self.league: int = 0
-        self.league_rank: int = 0
-
-
-class Group(FirestoreDocument):
-
-    def __init__(self):
-        super().__init__()
-        self.name: str = str()
-        self.player_maps: List[dict] = list()
-        self.player_count: int = 0
-        self.group_rank: int = 0
-
-    def __repr__(self):
-        return f"{self.name}:{self.player_count}:{self.group_rank}"
-
-
-Group.init()

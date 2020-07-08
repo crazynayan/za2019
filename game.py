@@ -3,7 +3,8 @@ import os
 os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = 'google-cloud.json'
 
 from drive2 import Drive2
-from flask_app.legacy.models import Game, Player, Schedule, Group
+from flask_app.legacy.models import Game, Player, Schedule
+from flask_app.group_select.selection import Group
 from flask_app import za_app
 from flask_app.legacy import routes
 
@@ -253,35 +254,6 @@ SEASON = {
 }
 
 
-class AdjustRank:
-    def __init__(self, league: int, rank: int, adjustment: int):
-        self.league: int = league
-        self.rank: int = rank
-        self.adjustment: int = adjustment
-
-
-ADJUST_RANKS = [
-    AdjustRank(1, 192, 0),
-    AdjustRank(1, 224, 128),
-    AdjustRank(1, 1000, 384),
-    AdjustRank(2, 61, 192),
-    AdjustRank(2, 125, 195),
-    AdjustRank(2, 235, 274),
-    AdjustRank(2, 1000, 452),
-    AdjustRank(3, 3, 253),
-    AdjustRank(3, 50, 349),
-    AdjustRank(3, 146, 462),
-    AdjustRank(3, 1000, 565),
-    AdjustRank(4, 3, 509),
-    AdjustRank(4, 50, 637),
-    AdjustRank(4, 126, 771),
-    AdjustRank(4, 1000, 838),
-    AdjustRank(5, 3, 708),
-    AdjustRank(5, 70, 898),
-    AdjustRank(5, 1000, 1095),
-]
-
-
 def create_groups():
     groups = list()
     players = Player.objects.filter("game", Player.objects.IN, list(SEASON)).get()
@@ -300,14 +272,8 @@ def adjust_group_ranks():
     players = Player.objects.filter("game", Player.objects.IN, list(SEASON)).get()
     groups = Group.objects.get()
     for group in groups:
-        for player_map in group.player_maps:
-            player = next(player for player in players if player.name == player_map["player"])
-            player_league = int(player.game[-1:])
-            player_map["rank"] = next(rank.adjustment + player.rank for rank in ADJUST_RANKS
-                                      if rank.league == player_league and player.rank <= rank.rank)
-            player_map["selected"] = False
-            player_map["league"] = player_league
-            player_map["league_rank"] = player.rank
+        group_players = [player for player in players if player.initial == group.name]
+        group.update_player_map(group_players)
     for group in groups:
         group.player_maps.sort(key=lambda item: item["rank"])
         group.group_rank = sum(player_map["rank"] for player_map in group.player_maps[:9])

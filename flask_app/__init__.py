@@ -17,3 +17,7 @@ za_app.register_blueprint(auth_bp)
 from flask_app.legacy import bp as legacy_bp
 
 za_app.register_blueprint(legacy_bp)
+
+from flask_app.group_select import bp as select_bp
+
+za_app.register_blueprint(select_bp)
