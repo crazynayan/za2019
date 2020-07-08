@@ -13,7 +13,7 @@ from flask_app.legacy.models import Player
 class PlayerMap(BaseMap):
 
     def __init__(self, name: str = None):
-        self.player: str = name if name else str()
+        self.name: str = name if name else str()
         self.rank: int = 0
         self.selected: bool = False
         self.league: int = 0
@@ -64,10 +64,10 @@ class Group(FirestoreDocument):
 
     def update_player_map(self, players: List[Player]) -> None:
         for player in players:
-            player_map = next((player_map for player_map in self.player_maps if player_map["player"] == player.name),
+            player_map = next((player_map for player_map in self.player_maps if player_map["name"] == player.name),
                               None)
             if not player_map:
-                player_map = PlayerMap(player_map).to_dict()
+                player_map = PlayerMap(player.name).to_dict()
                 self.player_maps.append(player_map)
             player_map["url"] = player.url
             player_map["url_expiration"] = player.url_expiration
@@ -97,7 +97,7 @@ class SelectionForm(FSForm):
         self.group: Group = query.order_by("player_count", Group.objects.ORDER_DESCENDING).first()
         if not self.group:
             return
-        self.player_options.choices = [(player_map["player"], player_map["player"])
+        self.player_options.choices = [(player_map["name"], player_map["name"])
                                        for player_map in self.group.player_maps]
 
     @staticmethod
@@ -107,7 +107,7 @@ class SelectionForm(FSForm):
 
     def update(self):
         for name in self.player_options.data:
-            player_map = next(player_map for player_map in self.group.player_maps if player_map["player"] == name)
+            player_map = next(player_map for player_map in self.group.player_maps if player_map["name"] == name)
             player_map["selected"] = True
         self.group.selection = True
         self.group.save()

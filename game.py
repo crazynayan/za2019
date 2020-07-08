@@ -263,8 +263,9 @@ def create_groups():
             group = Group()
             group.name = player.initial
             groups.append(group)
-        group.player_maps.append({"player": player.name, "rank": player.rank})
+        group.update_player_map([player])
         group.player_count = len(group.player_maps)
+    _update_group_rank(groups)
     Group.create_from_list_of_dict([group.doc_to_dict() for group in groups])
 
 
@@ -274,10 +275,15 @@ def adjust_group_ranks():
     for group in groups:
         group_players = [player for player in players if player.initial == group.name]
         group.update_player_map(group_players)
+    _update_group_rank(groups)
+    Group.save_all(groups)
+
+
+def _update_group_rank(groups):
     for group in groups:
         group.player_maps.sort(key=lambda item: item["rank"])
         group.group_rank = sum(player_map["rank"] for player_map in group.player_maps[:9])
         if group.player_count <= 0 or group.player_count >= 9:
             continue
         group.group_rank = int(group.group_rank * 9 / group.player_count)
-    Group.save_all(groups)
+    return
