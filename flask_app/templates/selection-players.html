@@ -35,15 +35,21 @@
             <form class="form" method="POST" id="selection-form">
                 {{ form.hidden_tag() }}
                 <div class="form-group">
-                    {{ form.submit(class=form.group.display_submit) }}
+                    {% if form.group.player_maps|length > 9 %}
+                        {{ form.submit(class_="btn btn-block btn-primary" ) }}
+                    {% else %}
+                        <button type="button" class="btn btn-block btn-secondary" disabled>Cannot Finalize</button>
+                    {% endif %}
                 </div>
-                <fieldset class="form-group">
-                    {% for option in form.player_options %}
-                        <div class="row">
-                            <div class="col-md-6 border border-strong {{ form.group.display_border(form.group.player_maps[loop.index - 1].name) }}"
+                {% for option in form.player_options %}
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="border border-strong {{ form.group.display_border(form.group.player_maps[loop.index - 1].name) }}"
                                  id="border-{{ loop.index - 1 }}">
-                                <div class="custom-control custom-checkbox">
-                                    {{ option(class_="custom-control-input") }}
+                                <div class="custom-control custom-checkbox" style="margin-left: 40px">
+                                    {% if form.group.player_maps|length > 9 %}
+                                        {{ option(class="custom-control-input") }}
+                                    {% endif %}
                                     <label for="{{ option.id }}" class="custom-control-label">
                                         {{ form.group.player_maps[loop.index - 1].name }} -
                                         {{ form.group.player_maps[loop.index - 1].rank }} -
@@ -55,8 +61,9 @@
                                 </div>
                             </div>
                         </div>
-                    {% endfor %}
-                </fieldset>
+                    </div>
+                    <br>
+                {% endfor %}
             </form>
         </div>
     </div>

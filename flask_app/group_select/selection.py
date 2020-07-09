@@ -85,10 +85,6 @@ class Group(FirestoreDocument):
             ("list-group-item-warning" if len(self.player_maps) > 9 else "list-group-item-secondary")
 
     @property
-    def display_submit(self) -> str:
-        return "btn btn-block btn-primary" if len(self.player_maps) > 9 else "btn btn-block btn-secondary disabled"
-
-    @property
     def display_group_button(self) -> str:
         return "btn-success" if self.selection else ("btn-warning" if len(self.player_maps) > 9 else "btn-secondary")
 
