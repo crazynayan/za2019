@@ -1,0 +1,46 @@
+{% extends "bootstrap_base.html" %}
+
+{% block app_content %}
+    <div class="row">
+        <div class="col-md-4">
+            <ul class="list-group text-center">
+                <li class="list-group-item list-group-item-primary">
+                    <strong>Group List</strong>
+                </li>
+            </ul>
+        </div>
+        <div class="col-md-4">
+            <ul class="list-group text-center">
+                <li class="list-group-item list-group-item-primary">
+                    <strong>{{ groups|length }}</strong> Groups
+                </li>
+            </ul>
+        </div>
+        <div class="col-md-4">
+            <ul class="list-group text-center">
+                <li class="list-group-item list-group-item-primary">
+                    <strong>{{ selected }}</strong> Groups Selected
+
+                </li>
+            </ul>
+        </div>
+    </div>
+    <br>
+    {% for group in groups %}
+        <div class="row">
+            <div class="col-md">
+                <a class="btn btn-block {{ group.display_group_button }}"
+                   href="{{ url_for('group_select.selection', group_id=group.id) }}">
+                    {{ group.name }} -
+                    Players #{{ group.player_count }} -
+                    Score #{{ group.group_rank }}
+                </a>
+            </div>
+        </div>
+        <br>
+    {% endfor %}
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+{% endblock %}

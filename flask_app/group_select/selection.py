@@ -3,6 +3,7 @@ from typing import List
 
 import pytz
 from firestore_ci import FirestoreDocument
+from flask import request
 from wtforms import SelectMultipleField, widgets, SubmitField, ValidationError
 
 from config import BaseMap
@@ -78,6 +79,23 @@ class Group(FirestoreDocument):
             player_map["league"] = player_league
         return
 
+    @property
+    def display_selection_status(self) -> str:
+        return "list-group-item-success" if self.selection else \
+            ("list-group-item-warning" if len(self.player_maps) > 9 else "list-group-item-secondary")
+
+    @property
+    def display_submit(self) -> str:
+        return "btn btn-block btn-primary" if len(self.player_maps) > 9 else "btn btn-block btn-secondary disabled"
+
+    @property
+    def display_group_button(self) -> str:
+        return "btn-success" if self.selection else ("btn-warning" if len(self.player_maps) > 9 else "btn-secondary")
+
+    def display_border(self, name) -> str:
+        return "border-primary" if any(player_map["name"] == name and player_map["selected"]
+                                       for player_map in self.player_maps) else "border-secondary"
+
 
 Group.init()
 
@@ -91,14 +109,15 @@ class SelectionForm(FSForm):
     player_options = MultiCheckboxField("Players")
     submit = SubmitField("Finalize Selection")
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, group: Group, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        query = Group.objects.filter_by(selection=False).filter("player_count", ">", 9)
-        self.group: Group = query.order_by("player_count", Group.objects.ORDER_DESCENDING).first()
-        if not self.group:
-            return
+        self.group: Group = group
         self.player_options.choices = [(player_map["name"], player_map["name"])
                                        for player_map in self.group.player_maps]
+        self.selected = sum(1 if player_map["selected"] else 0 for player_map in self.group.player_maps)
+        if request.method == "GET":
+            self.player_options.data = [player_map["name"] for player_map in self.group.player_maps
+                                        if player_map["selected"]]
 
     @staticmethod
     def validate_player_options(_, player_options):

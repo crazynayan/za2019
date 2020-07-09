@@ -20,7 +20,7 @@
             <div class="collapse navbar-collapse" id="navbarMenu">
                 <div class="navbar-nav mr-auto">
                     <a class="nav-item active nav-link" href="{{ url_for('legacy.home') }}">Home</a>
-                    <a class="nav-item active nav-link" href="{{ url_for('group_select.selection') }}">Selection</a>
+                    <a class="nav-item active nav-link" href="{{ url_for('group_select.view_groups') }}">Selection</a>
                 </div>
                 <div class="navbar-nav ml-auto">
                     {% if current_user.is_anonymous %}
