@@ -2,9 +2,11 @@ import datetime as dt
 import os
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from operator import itemgetter
-from typing import Tuple
+from typing import Tuple, List
 
 import pytz
+
+from flask_app.group_select.selection import Group
 
 os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = 'google-cloud.json'
 
@@ -15,6 +17,17 @@ from file import Image
 def generate_url(player: Player) -> Tuple[str, str]:
     url = Image.url(player.name)
     return url, player.id
+
+
+def update_group_url(players: List[Player]):
+    groups = Group.objects.get()
+    for group in groups:
+        for player_map in group.player_maps:
+            player = next(player for player in players if player.name == player_map["name"])
+            player_map["url"] = player.url
+            player_map["url_expiration"] = player.url_expiration
+    Group.objects.save_all(groups)
+    print(f"{len(groups)} groups updated.")
 
 
 def update_url(_, __):
@@ -42,3 +55,5 @@ def update_url(_, __):
     print(f"All Players updated. Now saving all players.")
     Player.save_all(players)
     print(f"{len(players)} player url updated. Function complete")
+    update_group_url(players)
+    return
