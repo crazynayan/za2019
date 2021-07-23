@@ -41,26 +41,25 @@
                         <button type="button" class="btn btn-block btn-secondary" disabled>Cannot Finalize</button>
                     {% endif %}
                 </div>
-                {% for option in form.player_options %}
+                {% for option_items in option_mappings|batch(2) %}
                     <div class="row">
-                        <div class="col-md-6">
-                            <div class="border border-strong {{ form.group.display_border(form.group.player_maps[loop.index - 1].name) }}"
-                                 id="border-{{ loop.index - 1 }}">
-                                <div class="custom-control custom-checkbox" style="margin-left: 40px">
-                                    {% if form.group.player_maps|length > 9 %}
+                        {% for player_map, option, index in option_items %}
+                            <div class="col-md-6">
+                                <div class="border border-strong {{ form.group.display_border(player_map.name) }}"
+                                     id="border-{{ index }}">
+                                    <div class="custom-control custom-checkbox" style="margin-left: 40px">
                                         {{ option(class="custom-control-input") }}
-                                    {% endif %}
-                                    <label for="{{ option.id }}" class="custom-control-label">
-                                        {{ form.group.player_maps[loop.index - 1].name }} -
-                                        {{ form.group.player_maps[loop.index - 1].rank }} -
-                                        League #{{ form.group.player_maps[loop.index - 1].league }} -
-                                        Rank #{{ form.group.player_maps[loop.index - 1].league_rank }}
-                                        <img src="{{ form.group.player_maps[loop.index - 1].url }}" class="img-fluid"
-                                             alt="{{ form.group.player_maps[loop.index - 1].player }}">
-                                    </label>
+                                        <label for="{{ option.id }}" class="custom-control-label">
+                                            {{ player_map.name }} -
+                                            {{ player_map.rank }} -
+                                            League #{{ player_map.league }} -
+                                            Rank #{{ player_map.league_rank }}
+                                            <img src="{{ player_map.url }}" class="img-fluid" alt="{{ player_map.player }}">
+                                        </label>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+                        {% endfor %}
                     </div>
                     <br>
                 {% endfor %}

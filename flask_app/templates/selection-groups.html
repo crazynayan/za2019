@@ -26,16 +26,18 @@
         </div>
     </div>
     <br>
-    {% for group in groups %}
+    {% for group_items in groups|batch(3) %}
         <div class="row">
-            <div class="col-md">
-                <a class="btn btn-block {{ group.display_group_button }}"
-                   href="{{ url_for('group_select.selection', group_id=group.id) }}">
-                    {{ group.name }} -
-                    Players #{{ group.player_count }} -
-                    Score #{{ group.group_rank }}
-                </a>
-            </div>
+            {% for group in group_items %}
+                <div class="col-md-4">
+                    <a class="btn btn-block {{ group.display_group_button }}"
+                       href="{{ url_for('group_select.selection', group_id=group.id) }}">
+                        {{ group.name }} -
+                        Players #{{ group.player_count }} -
+                        Score #{{ group.group_rank }}
+                    </a>
+                </div>
+            {% endfor %}
         </div>
         <br>
     {% endfor %}
