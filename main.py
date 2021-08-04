@@ -38,7 +38,7 @@ def update_url(_, __):
     print(f"URLs are valid till {url_expiration.isoformat()}")
     players.sort(key=lambda item: item.id)
     print(f"Players sorted by ID. Now generating URL.")
-    with ThreadPoolExecutor(max_workers=len(players)) as executor:
+    with ThreadPoolExecutor(max_workers=100) as executor:
         threads = set()
         for player in players:
             threads.add(executor.submit(generate_url, player))
