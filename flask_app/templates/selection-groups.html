@@ -26,23 +26,43 @@
         </div>
     </div>
     <br>
-    {% for group_items in groups|batch(3) %}
-        <div class="row">
-            {% for group in group_items %}
-                <div class="col-md-4">
-                    <a class="btn btn-block {{ group.display_group_button }}"
+    <table id="groupList" class="table">
+        <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col" class="text-center">Name</th>
+            <th scope="col" class="text-center">Image</th>
+            <th scope="col" class="text-center">Count</th>
+            <th scope="col" class="text-center">Rank</th>
+        </tr>
+        </thead>
+        <tbody>
+
+        {% for group in groups %}
+            <tr>
+                <td class="h1">{{ loop.index }}</td>
+                <td>
+                    <a class="btn btn-block {{group.display_group_button }}"
                        href="{{ url_for('group_select.selection', group_id=group.id) }}">
-                        {{ group.name }} -
-                        Players #{{ group.player_count }} -
-                        Score #{{ group.group_rank }}
+                        <span class="h1">{{ group.name }}</span>
                     </a>
-                </div>
-            {% endfor %}
-        </div>
-        <br>
-    {% endfor %}
+                </td>
+                <td><img src="{{ group.player_maps[0].url }}" class="img-fluid" alt="image"></td>
+                <td class="text-center h1">{{ group.player_count }}</td>
+                <td class="text-center">{{ group.group_rank }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    <br>
 {% endblock %}
 
 {% block scripts %}
     {{ super() }}
+    <!--suppress JSUnresolvedFunction -->
+    <script>
+        $(document).ready( () => {
+            $('#groupList').DataTable();
+        });
+    </script>
 {% endblock %}
